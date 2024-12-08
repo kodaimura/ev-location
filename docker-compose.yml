@@ -1,0 +1,28 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=genie_db
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    tty: true
+    command: julia -e "using Pkg; Pkg.activate(\".\"); using Genie; Genie.loadapp(); up(host = \"0.0.0.0\", async = false);"
+
+  db:
+    image: postgres:16.1
+    environment:
+      POSTGRES_DB: genie_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data

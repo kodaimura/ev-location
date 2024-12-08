@@ -1,0 +1,20 @@
+name = "FLocation"
+uuid = "65bd18c5-7a18-412f-ab25-64c17f453219"
+authors = ["Unknown "]
+version = "0.1.0"
+
+[deps]
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+Genie = "c43c736e-a2d1-11e8-161f-af95117fbd1e"
+Inflector = "6d011eab-0732-4556-8808-e463c76bf3b6"
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
+SearchLight = "340e8cb6-72eb-11e8-37ce-c97ebeb32050"
+SearchLightPostgreSQL = "4327cdd6-4902-11ea-0272-430cea0431bd"
+
+[compat]
+Dates = "1.11.0"
+Genie = "5.31.1"
+Inflector = "1.1.0"
+Logging = "1.11.0"
+SearchLight = "2.11.1"
+SearchLightPostgreSQL = "2.4.0"
