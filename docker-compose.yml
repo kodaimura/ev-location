@@ -10,7 +10,7 @@ services:
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=genie_db
+      - DB_NAME=f_location
     depends_on:
       - db
     volumes:
@@ -21,7 +21,7 @@ services:
   db:
     image: postgres:16.1
     environment:
-      POSTGRES_DB: genie_db
+      POSTGRES_DB: f_location
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
