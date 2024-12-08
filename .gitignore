@@ -47,3 +47,5 @@ db/*.sqlite
 
 # environment variables file
 .env
+
+data
