@@ -22,7 +22,7 @@ function signup(account_name::String, account_password::String)
     end
 end
 
-function login(account_name::String, account_password::String, secret::String)
+function login(account_name::String, account_password::String)
     account = SearchLight.findone(Account; account_name = account_name)
     if account === nothing
         return false, "Account not found"
@@ -30,15 +30,15 @@ function login(account_name::String, account_password::String, secret::String)
 
     if verify_password(account_password, account.account_password)
         payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(now() + Dates.Hour(1)))
-        token = Jwt.create_jwt(payload, secret)
+        token = Jwt.create_jwt(payload)
         return true, token
     else
         return false, "Invalid credentials"
     end
 end
 
-function verify_token(token::String, secret::String)
-    valid, payload_or_error = Jwt.verify_jwt(token, secret)
+function verify_token(token::String)
+    valid, payload_or_error = Jwt.verify_jwt(token)
     if valid
         exp = DateTime(payload_or_error["exp"])
         if exp < now()

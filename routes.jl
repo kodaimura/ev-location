@@ -17,17 +17,13 @@ route("/signup") do
 end
 
 route("/api/login", method="POST") do
-  request = Genie.Requests.jsonpayload()
-  AccountsController.login(request)
+  AccountsController.login()
 end
 
 route("/api/signup", method="POST") do
-  request = Genie.Requests.jsonpayload()
-  println(typeof(request))
-  AccountsController.signup(request)
+  AccountsController.signup()
 end
 
 route("/verify-token", method="POST") do
-  request = Genie.Requests.jsonpayload()
-  AccountsController.verify_token(request)
+  AccountsController.verify_token()
 end
