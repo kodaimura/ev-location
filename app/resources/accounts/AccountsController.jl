@@ -22,9 +22,9 @@ function signup()
 
     account_name = request["account_name"]
     account_password = request["account_password"]
-    success, message = AccountsService.signup(account_name, account_password)
+    success = AccountsService.signup(account_name, account_password)
     if success
-        return RenderJson.json(Dict("message" => message); status=201)
+        return RenderJson.json(Dict(); status=201)
     else
         return RenderJson.json(Dict("error" => message); status=400)
     end
@@ -39,11 +39,13 @@ function login()
 
     account_name = request["account_name"]
     account_password = request["account_password"]
-    success, response = AccountsService.login(account_name, account_password)
-    if success
-        return RenderJson.json(Dict("token" => response); status=200)
+    account = AccountsService.login(account_name, account_password)
+    if account != nothing
+        token = AccountsService.create_jwt(account)
+        cookie_header = "token=$token; Path=/; HttpOnly; Secure; SameSite=Lax"
+        return RenderJson.json(Dict("token" => token); status=200, headers=Dict("Set-Cookie" => cookie_header))
     else
-        return RenderJson.json(Dict("error" => response); status=401)
+        return RenderJson.json(Dict("error" => "login failed"); status=401)
     end
 end
 

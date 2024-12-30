@@ -12,32 +12,35 @@ import .Jwt
 
 export signup, login, verify_token
 
-function signup(account_name::String, account_password::String)
+function signup(account_name::String, account_password::String)::Bool
     account = Account(account_name=account_name, account_password=hash_password(account_password))
     try
         SearchLight.save!(account)
-        return true, "Account created successfully"
+        return true
     catch e
-        return false, "Error creating account: $e"
+        return false
     end
 end
 
-function login(account_name::String, account_password::String)
+function login(account_name::String, account_password::String)::Union{Nothing, Account}
     account = SearchLight.findone(Account; account_name = account_name)
     if account === nothing
-        return false, "Account not found"
+        return nothing
     end
 
     if verify_password(account_password, account.account_password)
-        payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Hour(1)))
-        token = Jwt.create(payload)
-        return true, token
+        return account
     else
-        return false, "Invalid credentials"
+        return nothing
     end
 end
 
-function verify_token(token::String)
+function create_jwt(account::Account)::String
+    payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Hour(1)))
+    return Jwt.create(payload)
+end
+
+function verify_token(token::String)::Tuple{Bool, Any}
     valid, payload_or_error = Jwt.verify(token)
     if valid
         exp = DateTime(payload_or_error["exp"])
