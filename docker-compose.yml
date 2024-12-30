@@ -11,6 +11,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=f_location
+      - JWT_SECRET=secret
     depends_on:
       - db
     volumes:
