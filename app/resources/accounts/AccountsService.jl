@@ -3,11 +3,11 @@ module AccountsService
 include("../core/Jwt.jl")
 include("Accounts.jl")
 
-using SHA
-using Dates
-using Base64
-using SearchLight
-using .Accounts
+import SHA
+import Base64
+import Dates
+import SearchLight
+import .Accounts: Account
 import .Jwt
 
 export signup, login, verify_token
@@ -29,8 +29,8 @@ function login(account_name::String, account_password::String)
     end
 
     if verify_password(account_password, account.account_password)
-        payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(now() + Dates.Hour(1)))
-        token = Jwt.create_jwt(payload)
+        payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Hour(1)))
+        token = Jwt.create(payload)
         return true, token
     else
         return false, "Invalid credentials"
@@ -38,10 +38,10 @@ function login(account_name::String, account_password::String)
 end
 
 function verify_token(token::String)
-    valid, payload_or_error = Jwt.verify_jwt(token)
+    valid, payload_or_error = Jwt.verify(token)
     if valid
         exp = DateTime(payload_or_error["exp"])
-        if exp < now()
+        if exp < Dates.now()
             return false, "Token expired"
         end
         return true, payload_or_error
