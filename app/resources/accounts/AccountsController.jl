@@ -1,12 +1,12 @@
-module AccountController
+module AccountsController
 
-include("../services/AccountService.jl")
+include("AccountsService.jl")
 
 import JSON
 using Genie.Renderer.Json
 using Genie.Requests
 using Genie.Responses
-import .AccountService
+import .AccountsService
 
 export signup, login, verify_token
 
@@ -23,7 +23,7 @@ function signup(request::Dict{String, Any})
 
     account_name = request["account_name"]
     account_password = request["account_password"]
-    success, message = AccountService.signup(account_name, account_password)
+    success, message = AccountsService.signup(account_name, account_password)
     if success
         return json(Dict("message" => message); status=201)
     else
@@ -40,7 +40,7 @@ function login(request::Dict{String, Any})
     account_name = request["account_name"]
     account_password = request["account_password"]
     secret = ENV["JWT_SECRET"]
-    success, response = AccountService.login(account_name, account_password, secret)
+    success, response = AccountsService.login(account_name, account_password, secret)
     if success
         return json(Dict("token" => response); status=200)
     else
@@ -56,7 +56,7 @@ function verify_token(request::Dict{String, Any})
 
     token = request["token"]
     secret = ENV["JWT_SECRET"]
-    success, payload_or_error = AccountService.verify_token(token, secret)
+    success, payload_or_error = AccountsService.verify_token(token, secret)
     if success
         return json(Dict("payload" => payload_or_error); status=200)
     else

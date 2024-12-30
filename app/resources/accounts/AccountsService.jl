@@ -1,7 +1,7 @@
-module AccountService
+module AccountsService
 
 include("../core/Jwt.jl")
-include("../models/Accounts.jl")
+include("Accounts.jl")
 
 using SHA
 using Dates
@@ -15,7 +15,7 @@ export signup, login, verify_token
 function signup(account_name::String, account_password::String)
     account = Account(account_name=account_name, account_password=hash_password(account_password))
     try
-        SearchLight.save(account)
+        SearchLight.save!(account)
         return true, "Account created successfully"
     catch e
         return false, "Error creating account: $e"
@@ -24,13 +24,12 @@ end
 
 function login(account_name::String, account_password::String, secret::String)
     account = SearchLight.findone(Account; account_name = account_name)
-    println(account)
     if account === nothing
         return false, "Account not found"
     end
 
     if verify_password(account_password, account.account_password)
-        payload = Dict("account_id" => account.account_id, "account_name" => account.account_name, "exp" => string(now() + Dates.Hour(1)))
+        payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(now() + Dates.Hour(1)))
         token = Jwt.create_jwt(payload, secret)
         return true, token
     else

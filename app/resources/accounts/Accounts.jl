@@ -7,11 +7,11 @@ import Base: @kwdef
 export Account
 
 @kwdef mutable struct Account <: AbstractModel
-  account_id::Union{DbId, Nothing} = nothing
+  id::DbId = DbId()
   account_name::String = ""
   account_password::String = ""
-  created_at::Union{DateTime, Nothing} = nothing
-  updated_at::Union{DateTime, Nothing} = nothing
+  created_at::DateTime = now()
+  updated_at::DateTime = now()
 end
 
 end
