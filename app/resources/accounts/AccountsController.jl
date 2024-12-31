@@ -6,14 +6,14 @@ import Genie.Renderer.Json as RenderJson
 import Genie.Requests as Requests
 import .AccountsService
 
-export signup, login, verify_token
+export signup, login
 
 function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     missing_keys = [key for key in keys if !haskey(request, key)]
     return isempty(missing_keys), missing_keys
 end
 
-function signup()
+function signup(ctx::Dict{String, Any})
     request = Requests.jsonpayload()
     is_valid, missing_keys = validate_request_keys(request, ["account_name", "account_password"])
     if !is_valid
@@ -30,7 +30,7 @@ function signup()
     end
 end
 
-function login()
+function login(ctx::Dict{String, Any})
     request = Requests.jsonpayload()
     is_valid, missing_keys = validate_request_keys(request, ["account_name", "account_password"])
     if !is_valid
@@ -46,22 +46,6 @@ function login()
         return RenderJson.json(Dict("token" => token); status=200, headers=Dict("Set-Cookie" => cookie_header))
     else
         return RenderJson.json(Dict("error" => "login failed"); status=401)
-    end
-end
-
-function verify_token()
-    request = Requests.jsonpayload()
-    is_valid, missing_keys = validate_request_keys(request, ["token"])
-    if !is_valid
-        return RenderJson.json(Dict("error" => "Missing required keys", "missing_keys" => missing_keys); status=400)
-    end
-
-    token = request["token"]
-    success, payload_or_error = AccountsService.verify_token(token)
-    if success
-        return RenderJson.json(Dict("payload" => payload_or_error); status=200)
-    else
-        return RenderJson.json(Dict("error" => payload_or_error); status=401)
     end
 end
 

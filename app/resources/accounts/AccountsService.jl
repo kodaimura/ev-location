@@ -10,7 +10,7 @@ import SearchLight
 import .Accounts: Account
 import .Jwt
 
-export signup, login, verify_token
+export signup, login
 
 function signup(account_name::String, account_password::String)::Bool
     account = Account(account_name=account_name, account_password=hash_password(account_password))
@@ -38,19 +38,6 @@ end
 function create_jwt(account::Account)::String
     payload = Dict("id" => account.id, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Hour(1)))
     return Jwt.create(payload)
-end
-
-function verify_token(token::String)::Tuple{Bool, Any}
-    valid, payload_or_error = Jwt.verify(token)
-    if valid
-        exp = DateTime(payload_or_error["exp"])
-        if exp < Dates.now()
-            return false, "Token expired"
-        end
-        return true, payload_or_error
-    else
-        return false, payload_or_error
-    end
 end
 
 function hash_password(password::String)
