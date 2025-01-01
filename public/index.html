@@ -23,9 +23,16 @@
 
         <div>
           <label for="destination">目的地（例: 錦糸町駅）:</label>
-          <input type="text" id="destination-input" placeholder="目的地を入力" />
-          <button id="search-button">検索</button>
+          <input type="text" class="destination-input" placeholder="目的地を入力" />
+          <button id="add-destination-button">目的地を追加</button>
         </div>
+        
+        <div>
+          <label for="destination">目的地リスト:</label>
+          <ul id="destination-list"></ul>
+        </div>
+        
+        <button id="search-button">検索</button>
 
         <div id="map"></div>
       </div>
