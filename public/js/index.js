@@ -1,4 +1,4 @@
-const { Map, LatLngBounds } = await google.maps.importLibrary("maps");
+const { Map } = await google.maps.importLibrary("maps");
 const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
 const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
 const geometry = await google.maps.importLibrary("geometry");
@@ -23,10 +23,11 @@ function initMap() {
     const service = new PlacesService(map);
     const request = {
         location: origin,
-        radius: 1000, // 5km以内の範囲を検索
-        //type: 'train_station', // 施設の種類を指定
-        query: 'エニタイムフィットネス',
+        radius: 1000,
+        query: '錦糸町駅'
     };
+
+    const visitedPlaces = new Set();  // すでに表示した場所を記録するためのセット
 
     service.textSearch(request, function (results, status) {
         if (status === PlacesServiceStatus.OK && results.length > 0) {
@@ -34,20 +35,13 @@ function initMap() {
 
             const bounds = new google.maps.LatLngBounds();
             nearestPlaces.forEach((place, index) => {
-                const pinTextGlyph = new PinElement({
-                    background: "yellow",
-                    borderColor: "black",
-                    glyph: (index + 1).toString(), // 番号を表示
-                    glyphColor: "black",
-                });
-                new AdvancedMarkerElement({
-                    position: place.geometry.location,
-                    map: map,
-                    content: pinTextGlyph.element,
-                });
-                bounds.extend(place.geometry.location);
+                // 同じ場所がすでに表示されている場合はスキップ
+                if (visitedPlaces.has(place.place_id)) {
+                    return; // すでに表示された場所はスキップ
+                }
 
-                // ルートを描画
+                visitedPlaces.add(place.place_id);  // 新しく表示された場所を記録
+
                 const directionsService = new google.maps.DirectionsService();
                 const directionsRenderer = new google.maps.DirectionsRenderer({
                     map: map,
@@ -64,14 +58,22 @@ function initMap() {
                     if (status === google.maps.DirectionsStatus.OK) {
                         directionsRenderer.setDirections(response);
 
-                        // 移動時間をコンソールに表示
+                        // 移動時間を取得
                         const route = response.routes[0];
                         const duration = route.legs[0].duration.text;
-                        console.log(`移動時間 (${index + 1}番目のジム): ${duration}`);
+
+                        // 移動時間を表示するカスタムアイコンを作成
+                        const marker = new AdvancedMarkerElement({
+                            position: place.geometry.location,
+                            map: map,
+                            content: createTimeIcon(duration), // 移動時間をアイコンとして表示
+                        });
                     } else {
                         console.error('ルートの取得に失敗しました:', status);
                     }
                 });
+
+                bounds.extend(place.geometry.location);
             });
             bounds.extend(origin);
             map.fitBounds(bounds);
@@ -81,20 +83,33 @@ function initMap() {
     });
 
     function getNearestPlaces(origin, results, count) {
-        // 距離を計算してソート
-        const placesWithDistance = results.map(place => {
-            const distance = geometry.spherical.computeDistanceBetween(
-                origin,
-                place.geometry.location
-            );
-            return { place, distance };
-        });
+        return results
+            .map(place => ({
+                place,
+                distance: geometry.spherical.computeDistanceBetween(origin, place.geometry.location)
+            }))
+            .sort((a, b) => a.distance - b.distance)
+            .filter((item, index, self) =>
+                index === self.findIndex(t => t.place.name === item.place.name)
+            )
+            .slice(0, count)
+            .map(item => item.place);
+    }
 
-        // 距離の昇順でソート
-        placesWithDistance.sort((a, b) => a.distance - b.distance);
+    function createTimeIcon(duration) {
+        // 移動時間を表示するカスタムアイコン（テキスト）を作成
+        const iconDiv = document.createElement('div');
+        iconDiv.style.backgroundColor = "yellow";
+        iconDiv.style.border = "2px solid black";
+        iconDiv.style.borderRadius = "50%";
+        iconDiv.style.padding = "8px";
+        iconDiv.style.textAlign = "center";
+        iconDiv.style.fontSize = "12px";
+        iconDiv.style.fontWeight = "bold";
+        iconDiv.style.color = "black";
+        iconDiv.innerText = duration;
 
-        // 上位N件を取得
-        return placesWithDistance.slice(0, count).map(item => item.place);
+        return iconDiv;
     }
 }
 
