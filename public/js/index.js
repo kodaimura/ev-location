@@ -1,4 +1,3 @@
-const { Map } = await google.maps.importLibrary("maps");
 const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
 const geometry = await google.maps.importLibrary("geometry");
@@ -8,7 +7,7 @@ let destinations = []; // 目的地のリストを保持
 function initMap() {
     const origin = { lat: 35.693815233679494, lng: 139.80926756129662 };  // 例: 錦糸町駅の位置
 
-    const map = new Map(document.getElementById('map'), {
+    let map = new google.maps.Map(document.getElementById('map'), {
         center: origin,
         zoom: 14,
         mapId: "DEMO_MAP_ID"
@@ -31,6 +30,17 @@ function initMap() {
             // 目的地リストに追加
             const li = document.createElement("li");
             li.textContent = destination;
+
+            // 削除ボタンを作成
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "削除";
+            deleteButton.onclick = function() {
+                // 削除ボタンがクリックされたときにリストから削除
+                destinations = destinations.filter(d => d !== destination);
+                li.remove();  // リストから目的地を削除
+            };
+
+            li.appendChild(deleteButton);
             document.getElementById("destination-list").appendChild(li);
         } else {
             alert("目的地を入力してください！");
@@ -43,6 +53,9 @@ function initMap() {
             alert("目的地を追加してください！");
             return;
         }
+
+        // 地図をリセットしてマーカーやルートを再描画
+        resetMap(map);
 
         // Places APIで目的地を検索
         const service = new PlacesService(map);
@@ -108,6 +121,14 @@ function initMap() {
 
         map.fitBounds(bounds);
     });
+
+    function resetMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: origin,
+            zoom: 14,
+            mapId: "DEMO_MAP_ID"
+        });
+    }
 
     function getNearestPlaces(origin, results, count) {
         return results
