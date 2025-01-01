@@ -1,39 +1,160 @@
-#destination-list {
-    list-style: none;
-    padding: 0;
+/* 全体のフォントと背景 */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
+    padding: 0;
+    color: #333; /* 明るいグレーでテキストを見やすく */
 }
 
-.destination-tag {
-    display: inline-flex;
-    align-items: center;
-    background-color: #007BFF;
+/* ページヘッダー */
+.page-header {
+    background-color: #ffffff; /* 白背景 */
+    padding: 20px 30px;
+    border-bottom: 1px solid #ccc; /* ヘッダーの下に線を追加 */
+}
+
+/* ヒーローヘッダー */
+.hero-header {
+    padding: 40px 30px;
+}
+
+/* タイトルやリンクのスタイル */
+h1, h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #4a90e2; /* 明るいブルー */
+}
+
+a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* 目的地入力フォームのスタイル */
+.input-group {
+    display: flex;
+    flex-direction: column; /* labelを上に、inputとbuttonを横並びにする */
+    margin-bottom: 20px;
+}
+
+/* inputとbuttonを横並びに */
+.input-group .destination-input,
+.input-group button {
+    margin-top: 10px; /* 上部に少し余白 */
+    font-size: 1.1rem;
+}
+
+.input-group .destination-input {
+    width: 70%; /* inputの幅を調整 */
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+.input-group button {
+    width: 25%; /* buttonの幅を調整 */
+    background-color: #4a90e2;
     color: white;
-    font-size: 14px;
-    border-radius: 15px;
-    padding: 5px 15px;
-    margin: 5px;
-    transition: background-color 0.3s;
-}
-
-.destination-tag:hover {
-    background-color: #0056b3;
-}
-
-.delete-button {
-    background: none;
+    padding: 12px 20px;
     border: none;
-    color: white;
-    font-size: 16px;
-    margin-left: 8px;
+    border-radius: 5px;
     cursor: pointer;
-    transition: color 0.3s;
+    transition: background-color 0.3s, transform 0.3s;
 }
 
-.delete-button:hover {
+.input-group button:hover {
+    background-color: #357ab7;
+    transform: scale(1.05);
+}
+
+/* 目的地リスト */
+#destination-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin-bottom: 20px; /* リストの下に余白 */
+}
+
+#destination-list .destination-tag {
+    background-color: #e6f7ff;
+    padding: 8px 12px;
+    margin-right: 10px;
+    margin-bottom: 10px; /* タグ間にスペースを追加 */
+    border-radius: 20px; /* タグっぽく丸みを持たせる */
+    font-size: 0.9rem;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+}
+
+#destination-list .delete-button {
+    background: transparent;
+    border: none;
     color: #ff4d4d;
+    cursor: pointer;
 }
 
-.delete-button:focus {
-    outline: none;
+#destination-list .delete-button:hover {
+    color: #d72d2d;
+}
+
+/* ラベルのスタイル */
+label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    display: block; /* 横並びにならないように変更 */
+    margin-bottom: 10px; /* ラベルと入力フォームの間にスペース */
+}
+
+/* 地図のスタイル */
+#map {
+    height: 600px;
+    width: 100%;
+    margin-top: 30px;
+    border-radius: 10px;
+}
+
+/* 検索ボタンのデザイン */
+#search-button {
+    width: 100%;
+    background-color: #4a90e2;
+    color: white;
+    padding: 15px 20px;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    margin-top: 20px;
+}
+
+#search-button:hover {
+    background-color: #357ab7;
+    transform: scale(1.05);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .hero-header {
+        padding: 25px;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .destination-input {
+        width: 100%;
+    }
+
+    #search-button {
+        width: 100%;
+    }
 }

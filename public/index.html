@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 
 <head>
   <meta charset="utf-8">
@@ -8,28 +8,33 @@
   <link rel="stylesheet" href="/css/index.css">
   <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
       ({ key: "AIzaSyDzM1I0GQ4j-MCwN_v5E1kJ5IlFfWtRw1U", v: "weekly" });</script>
-  <style>
-    #map {
-      height: 700px;
-      width: 100%;
-    }
-  </style>
 </head>
 
 <body id="page-top" data-spy="scroll" data-target=".side-menu">
+  <header class="page-header">
+    <div class="container-fluid">
+      <div class="row justify-content-between align-items-center">
+        <div class="col-auto">
+          <a href="#" class="logo">Genie</a>
+        </div>
+        <div class="col-auto">
+          <a href="login" class="btn btn-link">ログイン</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
   <div class="container-fluid">
     <div class="row hero-header" id="home">
       <div class="col-md-7">
-        <a href="login">ログイン</a>
+        <div class="input-group">
+          <div class="input-button-wrapper">
+            <input type="text" class="destination-input" placeholder="例: 錦糸町駅、まいばすけっと" />
+            <button id="add-destination-button">追加</button>
+          </div>
+        </div>        
 
         <div>
-          <label for="destination">目的地（例: 錦糸町駅）:</label>
-          <input type="text" class="destination-input" placeholder="目的地を入力" />
-          <button id="add-destination-button">目的地を追加</button>
-        </div>
-
-        <div>
-          <label for="destination">目的地リスト:</label>
           <ul id="destination-list"></ul>
         </div>
 

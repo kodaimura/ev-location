@@ -3,14 +3,15 @@ const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("
 const geometry = await google.maps.importLibrary("geometry");
 
 let destinations = []; // 目的地のリストを保持
+let map;
 
-function initMap() {
+const initMap = () => {
     const origin = { lat: 35.693815233679494, lng: 139.80926756129662 };  // 例: 錦糸町駅の位置
 
-    let map = new google.maps.Map(document.getElementById('map'), {
+    map = new google.maps.Map(document.getElementById('map'), {
         center: origin,
         zoom: 14,
-        mapId: "DEMO_MAP_ID"
+        mapId: "MAP_ID"
     });
 
     const originMarker = new AdvancedMarkerElement({
@@ -18,8 +19,13 @@ function initMap() {
         map: map,
     });
 
-    // 「目的地を追加」ボタンがクリックされたとき
-    document.getElementById("add-destination-button").addEventListener("click", function() {
+    setupDestinationAdding();
+    setupSearchButton(origin);
+};
+
+// 目的地追加の処理を別関数として分ける
+const setupDestinationAdding = () => {
+    document.getElementById("add-destination-button").addEventListener("click", () => {
         const destinationInput = document.querySelector(".destination-input");
         const destination = destinationInput.value;
     
@@ -36,7 +42,7 @@ function initMap() {
             const deleteButton = document.createElement("button");
             deleteButton.classList.add("delete-button"); // 削除ボタンにスタイルを適用
             deleteButton.textContent = "×";
-            deleteButton.onclick = function() {
+            deleteButton.onclick = () => {
                 // 削除ボタンがクリックされたときにリストから削除
                 destinations = destinations.filter(d => d !== destination);
                 li.remove();  // リストから目的地を削除
@@ -48,16 +54,17 @@ function initMap() {
             alert("目的地を入力してください！");
         }
     });
+};
 
-    // 「検索」ボタンがクリックされたとき
-    document.getElementById("search-button").addEventListener("click", function() {
+// 検索ボタンの処理を別関数として分ける
+const setupSearchButton = (origin) => {
+    document.getElementById("search-button").addEventListener("click", () => {
         if (destinations.length === 0) {
-            alert("目的地を追加してください！");
             return;
         }
 
         // 地図をリセットしてマーカーやルートを再描画
-        resetMap(map);
+        resetMap();
 
         // Places APIで目的地を検索
         const service = new PlacesService(map);
@@ -71,7 +78,7 @@ function initMap() {
                 query: destination
             };
 
-            service.textSearch(request, function (results, status) {
+            service.textSearch(request, (results, status) => {
                 if (status === PlacesServiceStatus.OK && results.length > 0) {
                     const nearestPlaces = getNearestPlaces(origin, results, 2);
 
@@ -94,7 +101,7 @@ function initMap() {
                             travelMode: google.maps.TravelMode.WALKING,  // 徒歩のルート
                         };
 
-                        directionsService.route(request, function (response, status) {
+                        directionsService.route(request, (response, status) => {
                             if (status === google.maps.DirectionsStatus.OK) {
                                 directionsRenderer.setDirections(response);
 
@@ -123,45 +130,47 @@ function initMap() {
 
         map.fitBounds(bounds);
     });
+};
 
-    function resetMap() {
-        map = new google.maps.Map(document.getElementById('map'), {
-            center: origin,
-            zoom: 14,
-            mapId: "DEMO_MAP_ID"
-        });
-    }
+// 地図をリセットする処理
+const resetMap = () => {
+    map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 35.693815233679494, lng: 139.80926756129662 },  // 錦糸町駅の位置
+        zoom: 14,
+        mapId: "DEMO_MAP_ID"
+    });
+};
 
-    function getNearestPlaces(origin, results, count) {
-        return results
-            .map(place => ({
-                place,
-                distance: geometry.spherical.computeDistanceBetween(origin, place.geometry.location)
-            }))
-            .sort((a, b) => a.distance - b.distance)
-            .filter((item, index, self) =>
-                index === self.findIndex(t => t.place.name === item.place.name)
-            )
-            .slice(0, count)
-            .map(item => item.place);
-    }
+// 近くの場所を取得する処理
+const getNearestPlaces = (origin, results, count) => {
+    return results
+        .map(place => ({
+            place,
+            distance: geometry.spherical.computeDistanceBetween(origin, place.geometry.location)
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .filter((item, index, self) =>
+            index === self.findIndex(t => t.place.name === item.place.name)
+        )
+        .slice(0, count)
+        .map(item => item.place);
+};
 
-    function createTimeIcon(duration) {
-        // 移動時間を表示するカスタムアイコン（テキスト）を作成
-        const iconDiv = document.createElement('div');
-        iconDiv.style.backgroundColor = "yellow";
-        iconDiv.style.border = "2px solid black";
-        iconDiv.style.borderRadius = "50%";
-        iconDiv.style.padding = "8px";
-        iconDiv.style.textAlign = "center";
-        iconDiv.style.fontSize = "12px";
-        iconDiv.style.fontWeight = "bold";
-        iconDiv.style.color = "black";
-        iconDiv.innerText = duration;
+// 移動時間を表示するカスタムアイコンを作成する処理
+const createTimeIcon = (duration) => {
+    const iconDiv = document.createElement('div');
+    iconDiv.style.backgroundColor = "yellow";
+    iconDiv.style.border = "2px solid black";
+    iconDiv.style.borderRadius = "50%";
+    iconDiv.style.padding = "8px";
+    iconDiv.style.textAlign = "center";
+    iconDiv.style.fontSize = "12px";
+    iconDiv.style.fontWeight = "bold";
+    iconDiv.style.color = "black";
+    iconDiv.innerText = duration;
 
-        return iconDiv;
-    }
-}
+    return iconDiv;
+};
 
 // 地図をロード
 window.onload = initMap;
