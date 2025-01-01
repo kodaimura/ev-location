@@ -28,25 +28,21 @@
     <div class="row hero-header" id="home">
       <div class="col-md-7">
         <div class="input-group">
-          <div class="input-button-wrapper">
-            <input type="text" class="destination-input" placeholder="例: 錦糸町駅、まいばすけっと" />
-            <button id="add-destination-button">追加</button>
-          </div>
+          <input type="text" class="destination-input" placeholder="例: 錦糸町駅、まいばすけっと（1つずつ追加）" />
+          <button id="add-destination-button">目的地追加</button>
         </div>
-        
         <div>
           <ul id="destination-list"></ul>
         </div>
+
         <div class="input-group">
-          <div class="input-button-wrapper">
-            <input type="text" id="address-input" placeholder="住所を入力してください">
-            <button id="set-origin-button">住所で地図を設定</button>
-          </div>
+          <input type="text" id="address-input" placeholder="〇〇県〇〇市〇丁目〇〇〇">
+          <button id="set-origin-button">所在地設定</button>
         </div>
 
-        <button id="search-button">検索</button>
-
         <div id="map"></div>
+
+        <button id="search-button">検索</button>
       </div>
     </div>
   </div>
