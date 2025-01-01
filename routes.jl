@@ -11,7 +11,7 @@ import .Jwt
 import .AccountsController
 
 route("/") do
-  is_authorized() || return redirect_login()
+  #is_authorized() || return redirect_login()
   return serve_static_file("index.html")
 end
 
