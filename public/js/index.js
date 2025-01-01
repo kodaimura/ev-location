@@ -2,25 +2,46 @@ const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
 const geometry = await google.maps.importLibrary("geometry");
 
-let destinations = []; // 目的地のリストを保持
+let destinations = [];
 let map;
+let geocoder;
+let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = () => {
-    const origin = { lat: 35.693815233679494, lng: 139.80926756129662 };  // 例: 錦糸町駅の位置
+    geocoder = new google.maps.Geocoder();
+    resetMap()
 
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: origin,
-        zoom: 14,
-        mapId: "MAP_ID"
-    });
-
-    const originMarker = new AdvancedMarkerElement({
-        position: origin,
-        map: map,
-    });
+    
 
     setupDestinationAdding();
-    setupSearchButton(origin);
+    setupSearchButton();
+    setupAddressInput();
+};
+
+// 住所入力で地図を更新する処理
+const setupAddressInput = () => {
+    document.getElementById("set-origin-button").addEventListener("click", () => {
+        const address = document.getElementById("address-input").value;
+
+        if (address) {
+            geocoder.geocode({ address: address }, (results, status) => {
+                if (status === "OK") {
+                    // 住所が有効な場合
+                    const newOrigin = results[0].geometry.location;
+                    origin = newOrigin; // グローバルoriginを更新
+                    map.setCenter(newOrigin); // 地図を住所に移動
+                    const originMarker = new AdvancedMarkerElement({
+                        position: newOrigin,
+                        map: map,
+                    });
+                } else {
+                    alert("住所の取得に失敗しました。再試行してください。");
+                }
+            });
+        } else {
+            alert("住所を入力してください！");
+        }
+    });
 };
 
 // 目的地追加の処理を別関数として分ける
@@ -57,7 +78,7 @@ const setupDestinationAdding = () => {
 };
 
 // 検索ボタンの処理を別関数として分ける
-const setupSearchButton = (origin) => {
+const setupSearchButton = () => {
     document.getElementById("search-button").addEventListener("click", () => {
         if (destinations.length === 0) {
             return;
@@ -135,9 +156,14 @@ const setupSearchButton = (origin) => {
 // 地図をリセットする処理
 const resetMap = () => {
     map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 35.693815233679494, lng: 139.80926756129662 },  // 錦糸町駅の位置
+        center: origin,
         zoom: 14,
-        mapId: "DEMO_MAP_ID"
+        mapId: "MAP_ID"
+    });
+
+    const originMarker = new AdvancedMarkerElement({
+        position: origin,
+        map: map,
     });
 };
 
