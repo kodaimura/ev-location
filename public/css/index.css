@@ -1,0 +1,39 @@
+#destination-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.destination-tag {
+    display: inline-flex;
+    align-items: center;
+    background-color: #007BFF;
+    color: white;
+    font-size: 14px;
+    border-radius: 15px;
+    padding: 5px 15px;
+    margin: 5px;
+    transition: background-color 0.3s;
+}
+
+.destination-tag:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    margin-left: 8px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.delete-button:hover {
+    color: #ff4d4d;
+}
+
+.delete-button:focus {
+    outline: none;
+}

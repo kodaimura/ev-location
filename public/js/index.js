@@ -22,24 +22,26 @@ function initMap() {
     document.getElementById("add-destination-button").addEventListener("click", function() {
         const destinationInput = document.querySelector(".destination-input");
         const destination = destinationInput.value;
-
+    
         if (destination) {
             destinations.push(destination);  // 入力された目的地をリストに追加
             destinationInput.value = "";  // 入力欄をクリア
-
+    
             // 目的地リストに追加
             const li = document.createElement("li");
+            li.classList.add("destination-tag"); // タグ風のクラスを追加
             li.textContent = destination;
-
+    
             // 削除ボタンを作成
             const deleteButton = document.createElement("button");
-            deleteButton.textContent = "削除";
+            deleteButton.classList.add("delete-button"); // 削除ボタンにスタイルを適用
+            deleteButton.textContent = "×";
             deleteButton.onclick = function() {
                 // 削除ボタンがクリックされたときにリストから削除
                 destinations = destinations.filter(d => d !== destination);
                 li.remove();  // リストから目的地を削除
             };
-
+    
             li.appendChild(deleteButton);
             document.getElementById("destination-list").appendChild(li);
         } else {
