@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/css/index.css">
   <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
       ({ key: "AIzaSyDzM1I0GQ4j-MCwN_v5E1kJ5IlFfWtRw1U", v: "weekly" });</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 
 <body id="page-top" data-spy="scroll" data-target=".side-menu">
@@ -26,10 +27,50 @@
 
   <div class="container-fluid">
     <div class="row hero-header" id="home">
-      <div class="col-md-7">
+      <div>
+        <p>
+          ユーザがよく利用する施設（駅、スーパー、コンビニなど）へのアクセスを基準に、賃貸物件の立地を評価するためのスコアを計算します。
+          より多くの施設が近いほど、また、利用頻度の高い施設が特に近い場合に、スコアが高くなります。このスコアを使って複数の物件を比較し、最も便利な立地の物件を見つけることができます。
+        </p>
+      
+        <h3>スコア計算式</h3>
+        <div class="formula">
+          <p>
+            $$\text{物件スコア} = \frac{\sum_{i=1}^{n} \left( \max\left( 0, \frac{T_{\text{max}} - T_i}{T_{\text{max}}} \times 100 \times P_i \right) \right)}{\sum_{i=1}^{n} \left( P_i \times 100 \right)} \times 100$$
+          </p>
+        </div>
+      
+        <h3>記号の説明</h3>
+        <ul>
+          <li>
+            \( T_{\text{max}} \): &nbsp;&nbsp;30分（徒歩時間の最大基準）
+          </li>
+          <li>
+            \( T_i \):&nbsp;&nbsp;物件から施設\( i \)までの徒歩時間（分）
+          </li>
+          <li>
+            \( P_i \):&nbsp;&nbsp;施設\( i \)の優先度（利用頻度の高い施設ほど大きな値）
+          </li>
+          <li>
+            \( n \):&nbsp;&nbsp;登録した施設の数
+          </li>
+          <li>
+            \( \max(0, x) \):&nbsp;&nbsp;\( x \)が負の場合は0、それ以外は\( x \)を返す関数
+          </li>
+        </ul>
+      
+        <h3>計算の流れ</h3>
+        <ol>
+          <li>各施設について、徒歩時間からスコアを計算し、優先度で重み付けします。</li>
+          <li>全施設のスコアを合計します。</li>
+          <li>理論上の最大スコア（全施設が徒歩0分の場合のスコア）で正規化します。</li>
+          <li>最終的なスコアを100点満点で表示します。</li>
+        </ol>
+      </div>
+      <div>
         <div class="input-group">
           <input type="text" class="destination-input" placeholder="例: 錦糸町駅、まいばすけっと（1つずつ追加）" />
-          <button id="add-destination-button">目的地追加</button>
+          <button id="add-destination-button">施設追加</button>
         </div>
         <div>
           <ul id="destination-list"></ul>
@@ -37,7 +78,7 @@
 
         <div class="input-group">
           <input type="text" id="address-input" placeholder="〇〇県〇〇市〇丁目〇〇〇">
-          <button id="set-origin-button">所在地設定</button>
+          <button id="set-origin-button">物件設定</button>
         </div>
 
         <div id="map"></div>
