@@ -11,8 +11,6 @@ const initMap = () => {
     geocoder = new google.maps.Geocoder();
     resetMap()
 
-    
-
     setupDestinationAdding();
     setupSearchButton();
     setupAddressInput();
@@ -92,18 +90,21 @@ const setupSearchButton = () => {
         const visitedPlaces = new Set();  // すでに表示した場所を記録するためのセット
         const bounds = new google.maps.LatLngBounds();
 
-        destinations.forEach(destination => {
+        for (const destination of destinations) {
             const request = {
                 location: origin,
-                radius: 900,
+                radius: 500,
                 query: destination
             };
 
-            service.textSearch(request, (results, status) => {
+            service.textSearch(request, async (results, status) => {
                 if (status === PlacesServiceStatus.OK && results.length > 0) {
                     const nearestPlaces = getNearestPlaces(origin, results, 2);
 
-                    nearestPlaces.forEach((place) => {
+                    let nearestPlace;
+                    let nearestPlaceDirection;
+                    let min = Infinity;
+                    for (const place of nearestPlaces) {
                         if (visitedPlaces.has(place.place_id)) {
                             return;  // すでに表示された場所はスキップ
                         }
@@ -111,44 +112,45 @@ const setupSearchButton = () => {
                         visitedPlaces.add(place.place_id);
 
                         const directionsService = new google.maps.DirectionsService();
-                        const directionsRenderer = new google.maps.DirectionsRenderer({
-                            map: map,
-                            suppressMarkers: true,  // マーカーの重複を防ぐ
-                        });
-
-                        const request = {
+                        const directionsRequest = {
                             origin: origin,
                             destination: place.geometry.location,
-                            travelMode: google.maps.TravelMode.WALKING,  // 徒歩のルート
+                            travelMode: google.maps.TravelMode.WALKING,
                         };
 
-                        directionsService.route(request, (response, status) => {
-                            if (status === google.maps.DirectionsStatus.OK) {
-                                directionsRenderer.setDirections(response);
-
-                                // 移動時間を取得
-                                const route = response.routes[0];
-                                const duration = route.legs[0].duration.text;
-
-                                // 移動時間を表示するカスタムアイコンを作成
-                                const marker = new AdvancedMarkerElement({
-                                    position: place.geometry.location,
-                                    map: map,
-                                    content: createTimeIcon(duration),  // アイコンに移動時間を表示
-                                });
-                            } else {
-                                console.error('ルートの取得に失敗しました:', status);
-                            }
+                        const response = await new Promise((resolve, reject) => {
+                            directionsService.route(directionsRequest, (response, status) => {
+                                if (status === google.maps.DirectionsStatus.OK) {
+                                    resolve(response);
+                                } else {
+                                    reject(`ルートの取得に失敗しました: ${status}`);
+                                }
+                            });
                         });
 
-                        bounds.extend(place.geometry.location);
+                        const duration = response.routes[0].legs[0].duration.value;
+                        if (min > duration) {
+                            min = duration;
+                            nearestPlace = place;
+                            nearestPlaceDirection = response;
+                        }
+                    };
+                    const directionsRenderer = new google.maps.DirectionsRenderer({
+                        map: map,
+                        suppressMarkers: true,  // マーカーの重複を防ぐ
                     });
+                    directionsRenderer.setDirections(nearestPlaceDirection);
+                    const marker = new AdvancedMarkerElement({
+                        position: nearestPlace.geometry.location,
+                        map: map,
+                        content: createTimeIcon(nearestPlaceDirection.routes[0].legs[0].duration.text),
+                    });
+                    bounds.extend(nearestPlace.geometry.location);
                 } else {
                     console.error("施設の検索に失敗しました:", status);
                 }
             });
-        });
-
+        };
         map.fitBounds(bounds);
     });
 };
