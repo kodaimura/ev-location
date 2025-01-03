@@ -55,7 +55,20 @@ const setupDestinationAdding = () => {
             // 目的地リストに追加
             const li = document.createElement("li");
             li.classList.add("destination-tag"); // タグ風のクラスを追加
+            li.classList.add("frequency-1");
             li.textContent = destination;
+            li.onclick = () => {
+                const classList = Array.from(li.classList);
+                const frequencyClass = classList.find(className => /^frequency-\d+$/.test(className));
+                if (frequencyClass) {
+                    const currentNumber = parseInt(frequencyClass.split('-')[1], 10);
+                    const nextNumber = currentNumber < 3 ? currentNumber + 1 : 1;
+                    li.classList.remove(frequencyClass);
+                    li.classList.add(`frequency-${nextNumber}`);
+                } else {
+                    li.classList.add('frequency-1');
+                }
+            }
     
             // 削除ボタンを作成
             const deleteButton = document.createElement("button");
