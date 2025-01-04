@@ -2,22 +2,22 @@ const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
 const geometry = await google.maps.importLibrary("geometry");
 
-let destinations = [];
+let facilities = [];
 let map;
 let geocoder;
 let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = () => {
     geocoder = new google.maps.Geocoder();
-    if (localStorage.getItem("destinations")) {
-        destinations = JSON.parse(localStorage.getItem("destinations"));
-        for (let d of destinations) {
-            renderDestination(d.value, d.frequency);
+    if (localStorage.getItem("facilities")) {
+        facilities = JSON.parse(localStorage.getItem("facilities"));
+        for (let d of facilities) {
+            renderFacility(d.value, d.frequency);
         }
     }
     resetMap();
 
-    setupDestinationAdding();
+    setupFacilityAdding();
     setupSearchButton();
     setupAddressInput();
 };
@@ -48,36 +48,36 @@ const setupAddressInput = () => {
 };
 
 // 目的地追加の処理を別関数として分ける
-const setupDestinationAdding = () => {
-    document.getElementById("add-destination-button").addEventListener("click", () => {
-        const destinationInput = document.querySelector(".destination-input");
-        const destination = destinationInput.value;
+const setupFacilityAdding = () => {
+    document.getElementById("add-facility-button").addEventListener("click", () => {
+        const facilityInput = document.querySelector(".facility-input");
+        const facility = facilityInput.value;
         
-        if (destinations.some(d => d.value === destination)) {
+        if (facilities.some(d => d.value === facility)) {
             alert("施設名が重複しています");
             return;
         }
 
-        if (destination) {
-            destinationInput.value = "";
-            addDestination(destination);
+        if (facility) {
+            facilityInput.value = "";
+            addFacility(facility);
         } else {
             alert("施設名を入力してください");
         }
     });
 };
 
-const addDestination = (destination) => {
-    destinations.push({"value": destination, "frequency": 1});
-    localStorage.setItem("destinations", JSON.stringify(destinations));
-    renderDestination(destination, 1);
+const addFacility = (facility) => {
+    facilities.push({"value": facility, "frequency": 1});
+    localStorage.setItem("facilities", JSON.stringify(facilities));
+    renderFacility(facility, 1);
 }
 
-const renderDestination = (destination, frequency) => {
+const renderFacility = (facility, frequency) => {
     const li = document.createElement("li");
-    li.classList.add("destination-tag");
+    li.classList.add("facility-tag");
     li.classList.add(`frequency-${frequency}`);
-    li.textContent = destination;
+    li.textContent = facility;
     li.onclick = () => {
         const classList = Array.from(li.classList);
         const frequencyClass = classList.find(className => /^frequency-\d+$/.test(className));
@@ -90,29 +90,29 @@ const renderDestination = (destination, frequency) => {
             frequency = 1;
         }
         li.classList.add(`frequency-${frequency}`);
-        destinations.forEach(item => {
-            if (item.value === destination) {
+        facilities.forEach(item => {
+            if (item.value === facility) {
                 item.frequency = frequency;
             }
         });
-        localStorage.setItem("destinations", JSON.stringify(destinations));
+        localStorage.setItem("facilities", JSON.stringify(facilities));
     }
 
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("delete-button");
     deleteButton.textContent = "×";
     deleteButton.onclick = () => {
-        destinations = destinations.filter(d => d.value !== destination);
-        localStorage.setItem("destinations", JSON.stringify(destinations));
+        facilities = facilities.filter(d => d.value !== facility);
+        localStorage.setItem("facilities", JSON.stringify(facilities));
         li.remove();
     };
     li.appendChild(deleteButton);
-    document.getElementById("destination-list").appendChild(li);
+    document.getElementById("facility-list").appendChild(li);
 }
 
 const setupSearchButton = () => {
     document.getElementById("search-button").addEventListener("click", () => {
-        if (destinations.length === 0) {
+        if (facilities.length === 0) {
             return;
         }
         resetMap();
@@ -122,11 +122,11 @@ const setupSearchButton = () => {
         const visitedPlaces = new Set();
         const bounds = new google.maps.LatLngBounds();
 
-        for (const destination of destinations) {
+        for (const facility of facilities) {
             const request = {
                 location: origin,
                 radius: 500,
-                query: destination.value
+                query: facility.value
             };
 
             service.textSearch(request, async (results, status) => {

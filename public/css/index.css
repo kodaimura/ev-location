@@ -59,12 +59,12 @@ a:hover {
     background-color: #357ab7;
 }
 
-#destination-list {
+#facility-list {
     list-style-type: none;
     padding-left: 0;
 }
 
-#destination-list .destination-tag {
+#facility-list .facility-tag {
     padding: 8px 12px;
     margin-right: 10px;
     margin-bottom: 10px;
@@ -89,7 +89,7 @@ a:hover {
     background-color: #FFDC64;
 }
 
-#destination-list .delete-button {
+#facility-list .delete-button {
     background: transparent;
     border: none;
     color: #ff4d4d;
@@ -97,7 +97,7 @@ a:hover {
     font-size: 1.2rem;
 }
 
-#destination-list .delete-button:hover {
+#facility-list .delete-button:hover {
     color: #d72d2d;
 }
 
