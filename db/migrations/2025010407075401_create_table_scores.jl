@@ -7,12 +7,14 @@ function up()
     [
       pk()
       column("account_id", :integer)
+      column("guest_code", :string)
       column("address", :string, not_null=true)
       column("score", :float, not_null=true)
       column("facilities_data", :string, not_null=true)
       column("tmax", :integer, not_null=true)
       column("created_at", :timestamp, not_null=true)
       column("updated_at", :timestamp, not_null=true)
+      column("deleted_at", :timestamp)
     ]
   end
 end
