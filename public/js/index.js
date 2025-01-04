@@ -9,7 +9,13 @@ let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = () => {
     geocoder = new google.maps.Geocoder();
-    resetMap()
+    if (localStorage.getItem("destinations")) {
+        destinations = JSON.parse(localStorage.getItem("destinations"));
+        for (let d of destinations) {
+            renderDestination(d.value, d.frequency);
+        }
+    }
+    resetMap();
 
     setupDestinationAdding();
     setupSearchButton();
@@ -47,46 +53,58 @@ const setupDestinationAdding = () => {
     document.getElementById("add-destination-button").addEventListener("click", () => {
         const destinationInput = document.querySelector(".destination-input");
         const destination = destinationInput.value;
-    
+
         if (destination) {
-            destinations.push(destination);  // 入力された目的地をリストに追加
-            destinationInput.value = "";  // 入力欄をクリア
-    
-            // 目的地リストに追加
-            const li = document.createElement("li");
-            li.classList.add("destination-tag"); // タグ風のクラスを追加
-            li.classList.add("frequency-1");
-            li.textContent = destination;
-            li.onclick = () => {
-                const classList = Array.from(li.classList);
-                const frequencyClass = classList.find(className => /^frequency-\d+$/.test(className));
-                if (frequencyClass) {
-                    const currentNumber = parseInt(frequencyClass.split('-')[1], 10);
-                    const nextNumber = currentNumber < 3 ? currentNumber + 1 : 1;
-                    li.classList.remove(frequencyClass);
-                    li.classList.add(`frequency-${nextNumber}`);
-                } else {
-                    li.classList.add('frequency-1');
-                }
-            }
-    
-            // 削除ボタンを作成
-            const deleteButton = document.createElement("button");
-            deleteButton.classList.add("delete-button"); // 削除ボタンにスタイルを適用
-            deleteButton.textContent = "×";
-            deleteButton.onclick = () => {
-                // 削除ボタンがクリックされたときにリストから削除
-                destinations = destinations.filter(d => d !== destination);
-                li.remove();  // リストから目的地を削除
-            };
-    
-            li.appendChild(deleteButton);
-            document.getElementById("destination-list").appendChild(li);
+            destinationInput.value = "";
+            addDestination(destination);
         } else {
             alert("目的地を入力してください！");
         }
     });
 };
+
+const addDestination = (destination) => {
+    destinations.push({"value": destination, "frequency": 1});
+    localStorage.setItem("destinations", JSON.stringify(destinations));
+    renderDestination(destination, 1);
+}
+
+const renderDestination = (destination, frequency) => {
+    const li = document.createElement("li");
+    li.classList.add("destination-tag");
+    li.classList.add(`frequency-${frequency}`);
+    li.textContent = destination;
+    li.onclick = () => {
+        const classList = Array.from(li.classList);
+        const frequencyClass = classList.find(className => /^frequency-\d+$/.test(className));
+        let frequency;
+        if (frequencyClass) {
+            const currentNumber = parseInt(frequencyClass.split('-')[1], 10);
+            frequency = currentNumber < 3 ? currentNumber + 1 : 1;
+            li.classList.remove(frequencyClass);
+        } else {
+            frequency = 1;
+        }
+        li.classList.add(`frequency-${frequency}`);
+        destinations.forEach(item => {
+            if (item.value === destination) {
+                item.frequency = frequency;
+            }
+        });
+        localStorage.setItem("destinations", JSON.stringify(destinations));
+    }
+
+    const deleteButton = document.createElement("button");
+    deleteButton.classList.add("delete-button");
+    deleteButton.textContent = "×";
+    deleteButton.onclick = () => {
+        destinations = destinations.filter(d => d.value !== destination);
+        localStorage.setItem("destinations", JSON.stringify(destinations));
+        li.remove();
+    };
+    li.appendChild(deleteButton);
+    document.getElementById("destination-list").appendChild(li);
+}
 
 // 検索ボタンの処理を別関数として分ける
 const setupSearchButton = () => {
@@ -107,7 +125,7 @@ const setupSearchButton = () => {
             const request = {
                 location: origin,
                 radius: 500,
-                query: destination
+                query: destination.value
             };
 
             service.textSearch(request, async (results, status) => {
