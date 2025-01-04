@@ -8,11 +8,11 @@ export Score
 
 @kwdef mutable struct Score <: AbstractModel
   id::DbId = DbId()
-  account_id::Union{Int32, Nothing} = nothing
-  guest_code::Union{String, Nothing} = nothing
+  account_id::Int32 = 0
+  guest_code::String = ""
   address::String = ""
   score::Float64 = 0.0
-  facilities_data::String = ""
+  facilities_data::String = "[]"
   tmax::Int32 = 30
   created_at::DateTime = now()
   updated_at::DateTime = now()
