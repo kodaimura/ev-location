@@ -30,7 +30,6 @@ const setupAddressInput = () => {
         if (address) {
             geocoder.geocode({ address: address }, (results, status) => {
                 if (status === "OK") {
-                    // 住所が有効な場合
                     const newOrigin = results[0].geometry.location;
                     origin = newOrigin; // グローバルoriginを更新
                     map.setCenter(newOrigin); // 地図を住所に移動
@@ -53,12 +52,17 @@ const setupDestinationAdding = () => {
     document.getElementById("add-destination-button").addEventListener("click", () => {
         const destinationInput = document.querySelector(".destination-input");
         const destination = destinationInput.value;
+        
+        if (destinations.some(d => d.value === destination)) {
+            alert("施設名が重複しています");
+            return;
+        }
 
         if (destination) {
             destinationInput.value = "";
             addDestination(destination);
         } else {
-            alert("目的地を入力してください！");
+            alert("施設名を入力してください");
         }
     });
 };
@@ -106,19 +110,16 @@ const renderDestination = (destination, frequency) => {
     document.getElementById("destination-list").appendChild(li);
 }
 
-// 検索ボタンの処理を別関数として分ける
 const setupSearchButton = () => {
     document.getElementById("search-button").addEventListener("click", () => {
         if (destinations.length === 0) {
             return;
         }
-
-        // 地図をリセットしてマーカーやルートを再描画
         resetMap();
 
         // Places APIで目的地を検索
         const service = new PlacesService(map);
-        const visitedPlaces = new Set();  // すでに表示した場所を記録するためのセット
+        const visitedPlaces = new Set();
         const bounds = new google.maps.LatLngBounds();
 
         for (const destination of destinations) {
