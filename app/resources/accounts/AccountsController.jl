@@ -26,7 +26,7 @@ function signup(ctx::Dict{String, Any})
     if success
         return RenderJson.json(Dict(); status=201)
     else
-        return RenderJson.json(Dict("error" => message); status=400)
+        return RenderJson.json(Dict(); status=400)
     end
 end
 
