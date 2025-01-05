@@ -120,7 +120,7 @@ const setupSearchButton = () => {
         }
         await displayClosestRoutesForFacilities();
         console.log("b")
-        //postScores();
+        postScores();
     });
 };
 

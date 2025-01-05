@@ -1,6 +1,3 @@
-include("./app/resources/core/Jwt.jl")
-include("./app/resources/accounts/AccountsController.jl")
-
 using Genie.Router
 using Genie.Requests
 using Genie.Cookies
@@ -8,7 +5,8 @@ using Genie.Renderer
 using Genie.Renderer.Json
 using HTTP
 import .Jwt
-import .AccountsController
+import .FacilitiesController
+import .ScoresController
 
 route("/") do
   #is_authorized() || return redirect_login()
@@ -35,9 +33,9 @@ route("/api/guest/facilities", method="POST") do
   return FacilitiesController.guest_post(get_context())
 end
 
-#route("/api/guest/scores", method="POST") do
-#  return ScoresController.guest_post(get_context())
-#end
+route("/api/guest/scores", method="POST") do
+  return ScoresController.guest_post(get_context())
+end
 #
 #route("/api/facilities", method="POST") do
 #  return FacilitiesController.post(get_context())
