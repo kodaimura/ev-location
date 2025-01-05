@@ -29,12 +29,12 @@ route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
 end
 
-route("/api/guest/facilities", method="POST") do
-  return FacilitiesController.guest_post(get_context())
+route("/api/guest/:guest_code/facilities", method="POST") do
+  return FacilitiesController.guest_post(get_context(), params(:guest_code))
 end
 
-route("/api/guest/scores", method="POST") do
-  return ScoresController.guest_post(get_context())
+route("/api/guest/:guest_code/scores", method="POST") do
+  return ScoresController.guest_post(get_context(), params(:guest_code))
 end
 #
 #route("/api/facilities", method="POST") do

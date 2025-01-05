@@ -10,14 +10,16 @@ let map;
 let geocoder;
 let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
-const initMap = () => {
+const initMap = async () => {
     geocoder = new google.maps.Geocoder();
-    if (localStorage.getItem("facilities")) {
-        facilities = JSON.parse(localStorage.getItem("facilities"));
-        for (let d of facilities) {
+    /*
+    if (localStorage.getItem("guest_code")) {
+        const response = await getFacilities();
+        for (let d of JSON.parse(response.facilities)) {
             renderFacility(d.name, d.frequency);
         }
-    }
+    }*/
+        getFacilities();
     resetMap();
 
     setupFacilityAdding();
@@ -261,29 +263,34 @@ const createTimeIcon = (duration) => {
     return iconDiv;
 };
 
+const getFacilities = async () => {
+    const guest_code = "abc";
+    return api.get(`/guest/${guest_code}/facilities`);
+};
+
 const postFacilities = async () => {
+    const guest_code = "abc";
     const body = {
-        guest_code: "abc",
         facilities_data: JSON.stringify(facilities),
     };
 
     try {
-        await api.post('/guest/facilities', body);
+        await api.post(`/guest/${guest_code}/facilities`, body);
     } catch (e) {
         console.log(e)
     }
 };
 
 const postScores = async () => {
+    const guest_code = "abc";
     const body = {
-        guest_code: "abc",
         address: document.getElementById("address-input").value,
         facilities_data: JSON.stringify(facilities),
         facilities_data_2: JSON.stringify(facilities2),
     };
 
     try {
-        const response = await api.post('/guest/scores', body);
+        const response = await api.post(`/guest/${guest_code}/scores`, body);
     } catch (e) {
         console.log(e)
     }

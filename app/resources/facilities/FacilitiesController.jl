@@ -13,14 +13,13 @@ function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     return isempty(missing_keys), missing_keys
 end
 
-function guest_post(ctx::Dict{String, Any})
+function guest_post(ctx::Dict{String, Any}, guest_code::String)
     request = Requests.jsonpayload()
-    is_valid, missing_keys = validate_request_keys(request, ["guest_code", "facilities_data"])
+    is_valid, missing_keys = validate_request_keys(request, ["facilities_data"])
     if !is_valid
         return RenderJson.json(Dict("error" => "Missing required keys", "missing_keys" => missing_keys); status=400)
     end
 
-    guest_code = request["guest_code"]
     facilities_data = request["facilities_data"]
     success = FacilitiesService.guest_post(guest_code, facilities_data)
     if success
