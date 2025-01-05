@@ -12,14 +12,7 @@ let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = async () => {
     geocoder = new google.maps.Geocoder();
-    /*
-    if (localStorage.getItem("guest_code")) {
-        const response = await getFacilities();
-        for (let d of JSON.parse(response.facilities)) {
-            renderFacility(d.name, d.frequency);
-        }
-    }*/
-        getFacilities();
+    getFacilities();
     resetMap();
 
     setupFacilityAdding();
@@ -107,6 +100,9 @@ const renderFacility = (facility, frequency) => {
     deleteButton.classList.add("delete-button");
     deleteButton.textContent = "×";
     deleteButton.onclick = () => {
+        console.log(facility)
+        console.log(facilities);
+        console.log(456)
         facilities = facilities.filter(d => d.name !== facility);
         postFacilities();
         li.remove();
@@ -265,7 +261,13 @@ const createTimeIcon = (duration) => {
 
 const getFacilities = async () => {
     const guest_code = "abc";
-    return api.get(`/guest/${guest_code}/facilities`);
+    const response = await api.get(`/guest/${guest_code}/facilities`);
+    if (response.facilities) {
+        facilities = JSON.parse(response.facilities.facilities_data);
+        for (let f of facilities) {
+            renderFacility(f.name, f.frequency);
+        }
+    }
 };
 
 const postFacilities = async () => {

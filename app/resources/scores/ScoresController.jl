@@ -13,7 +13,7 @@ function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     return isempty(missing_keys), missing_keys
 end
 
-function guest_post(ctx::Dict{String, Any}, guest_code::String)
+function guest_post(ctx::Dict{String, Any}, guest_code::AbstractString)
     request = Requests.jsonpayload()
     is_valid, missing_keys = validate_request_keys(request, ["address", "facilities_data", "facilities_data_2"])
     if !is_valid

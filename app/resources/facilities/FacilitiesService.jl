@@ -5,9 +5,18 @@ include("Facilities.jl")
 import SearchLight
 import .Facilities: Facility
 
-export guest_post
+export guest_get, guest_post
 
-function guest_post(guest_code::String, facilities_data::String)::Bool
+function guest_get(guest_code::AbstractString)::Tuple{Union{Facility, Nothing}, Bool}
+    try
+        facility = SearchLight.findone(Facility; guest_code = guest_code)
+        return facility, true
+    catch e
+        return nothing, false
+    end
+end
+
+function guest_post(guest_code::AbstractString, facilities_data::String)::Bool
     existing_facility = SearchLight.findone(Facility; guest_code = guest_code)
 
     try

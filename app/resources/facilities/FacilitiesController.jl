@@ -6,14 +6,23 @@ import Genie.Renderer.Json as RenderJson
 import Genie.Requests as Requests
 import .FacilitiesService
 
-export guest_post
+export guest_get, guest_post
 
 function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     missing_keys = [key for key in keys if !haskey(request, key)]
     return isempty(missing_keys), missing_keys
 end
 
-function guest_post(ctx::Dict{String, Any}, guest_code::String)
+function guest_get(ctx::Dict{String, Any}, guest_code::AbstractString)
+    facilities, success = FacilitiesService.guest_get(guest_code)
+    if success
+        return RenderJson.json(Dict("facilities" => facilities); status=200)
+    else
+        return RenderJson.json(Dict(); status=500)
+    end
+end
+
+function guest_post(ctx::Dict{String, Any}, guest_code::AbstractString)
     request = Requests.jsonpayload()
     is_valid, missing_keys = validate_request_keys(request, ["facilities_data"])
     if !is_valid

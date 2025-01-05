@@ -29,6 +29,10 @@ route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
 end
 
+route("/api/guest/:guest_code/facilities") do
+  return FacilitiesController.guest_get(get_context(), params(:guest_code))
+end
+
 route("/api/guest/:guest_code/facilities", method="POST") do
   return FacilitiesController.guest_post(get_context(), params(:guest_code))
 end

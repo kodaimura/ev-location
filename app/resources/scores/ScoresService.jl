@@ -7,7 +7,7 @@ import .Scores: Score
 
 export guest_post
 
-function guest_post(guest_code::String, address::String, facilities_data::String, facilities_data_2::String)::Tuple{Float64, Bool}
+function guest_post(guest_code::AbstractString, address::String, facilities_data::String, facilities_data_2::String)::Tuple{Float64, Bool}
     try
         tmax = 30
         score = calc_score(facilities_data, tmax)
