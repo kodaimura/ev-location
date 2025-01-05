@@ -114,81 +114,105 @@ const renderFacility = (facility, frequency) => {
 }
 
 const setupSearchButton = () => {
-    document.getElementById("search-button").addEventListener("click", () => {
+    document.getElementById("search-button").addEventListener("click", async () => {
         if (facilities.length === 0) {
             return;
         }
-        resetMap();
-
-        // Places APIで目的地を検索
-        const service = new PlacesService(map);
-        const visitedPlaces = new Set();
-        const bounds = new google.maps.LatLngBounds();
-
-        for (const facility of facilities) {
-            const request = {
-                location: origin,
-                radius: 500,
-                query: facility.value
-            };
-
-            service.textSearch(request, async (results, status) => {
-                if (status === PlacesServiceStatus.OK && results.length > 0) {
-                    const nearestPlaces = getNearestPlaces(origin, results, 2);
-
-                    let nearestPlace;
-                    let nearestPlaceDirection;
-                    let min = Infinity;
-                    for (const place of nearestPlaces) {
-                        if (visitedPlaces.has(place.place_id)) {
-                            return;  // すでに表示された場所はスキップ
-                        }
-
-                        visitedPlaces.add(place.place_id);
-
-                        const directionsService = new google.maps.DirectionsService();
-                        const directionsRequest = {
-                            origin: origin,
-                            destination: place.geometry.location,
-                            travelMode: google.maps.TravelMode.WALKING,
-                        };
-
-                        const response = await new Promise((resolve, reject) => {
-                            directionsService.route(directionsRequest, (response, status) => {
-                                if (status === google.maps.DirectionsStatus.OK) {
-                                    resolve(response);
-                                } else {
-                                    reject(`ルートの取得に失敗しました: ${status}`);
-                                }
-                            });
-                        });
-
-                        const duration = response.routes[0].legs[0].duration.value;
-                        if (min > duration) {
-                            min = duration;
-                            nearestPlace = place;
-                            nearestPlaceDirection = response;
-                        }
-                    };
-                    const directionsRenderer = new google.maps.DirectionsRenderer({
-                        map: map,
-                        suppressMarkers: true,  // マーカーの重複を防ぐ
-                    });
-                    directionsRenderer.setDirections(nearestPlaceDirection);
-                    const marker = new AdvancedMarkerElement({
-                        position: nearestPlace.geometry.location,
-                        map: map,
-                        content: createTimeIcon(nearestPlaceDirection.routes[0].legs[0].duration.text),
-                    });
-                    bounds.extend(nearestPlace.geometry.location);
-                } else {
-                    console.error("施設の検索に失敗しました:", status);
-                }
-            });
-        };
-        map.fitBounds(bounds);
+        await displayClosestRoutesForFacilities();
+        console.log("b")
+        //postScores();
     });
 };
+
+const displayClosestRoutesForFacilities = async () => {
+    resetMap();
+    const displayedPlaces = new Set();
+    const service = new PlacesService(map);
+    for (const facility of facilities) {
+        const results = await searchFacility(service, facility)
+        if (results) {
+            await displayClosestRoute(results, displayedPlaces)
+        }
+    };
+}
+
+const searchFacility = async (service, facility) => {
+    return new Promise((resolve, reject) => {
+        const request = {
+            location: origin,
+            radius: 500,
+            query: facility.value,
+        };
+
+        service.textSearch(request, (results, status) => {
+            if (status === PlacesServiceStatus.OK && results.length > 0) {
+                resolve(results);
+            } else {
+                console.error("施設の検索に失敗しました:", status);
+                resolve(null);
+            }
+        });
+    });
+}
+
+const displayClosestRoute = async (results, displayedPlaces) => {
+    const nearestPlaces = getNearestPlaces(origin, results, 2);
+    if (nearestPlaces.length > 0) {
+        const placeInfo = await getClosestPlaceAndDirection(nearestPlaces);
+        const place = placeInfo[0];
+        const placeDirection = placeInfo[1];
+        if (!displayedPlaces.has(place.place_id)) {
+            displayedPlaces.add(place.place_id);
+            await displayFacilityRoute(place, placeDirection);
+        }
+    }
+}
+
+// 複数候補から最短ルートの場所とルートを取得する処理
+const getClosestPlaceAndDirection = async (places) => {
+    let min = Infinity;
+    let nearestPlace;
+    let nearestPlaceDirection;
+    for (const place of places) {
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRequest = {
+            origin: origin,
+            destination: place.geometry.location,
+            travelMode: google.maps.TravelMode.WALKING,
+        };
+
+        const response = await new Promise((resolve, reject) => {
+            directionsService.route(directionsRequest, (response, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    resolve(response);
+                } else {
+                    reject(`ルートの取得に失敗しました: ${status}`);
+                }
+            });
+        });
+
+        const duration = response.routes[0].legs[0].duration.value;
+        if (min > duration) {
+            min = duration;
+            nearestPlace = place;
+            nearestPlaceDirection = response;
+        }
+    }
+    return [nearestPlace, nearestPlaceDirection];
+}
+
+const displayFacilityRoute = async (place, placeDirection) => {
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+        map: map,
+        suppressMarkers: true,  // マーカーの重複を防ぐ
+    });
+    directionsRenderer.setDirections(placeDirection);
+    const marker = new AdvancedMarkerElement({
+        position: place.geometry.location,
+        map: map,
+        content: createTimeIcon(placeDirection.routes[0].legs[0].duration.text),
+    });
+}
 
 // 地図をリセットする処理
 const resetMap = () => {
@@ -204,7 +228,7 @@ const resetMap = () => {
     });
 };
 
-// 近くの場所を取得する処理
+// 直線距離で近くの場所を取得する処理（ルートとしての最短の候補として）
 const getNearestPlaces = (origin, results, count) => {
     return results
         .map(place => ({
@@ -243,7 +267,21 @@ const postFacilities = async () => {
 
     try {
         await api.post('/guest/facilities', body);
-        window.location.replace('/');
+    } catch (e) {
+        console.log(e)
+    }
+};
+
+const postScores = async () => {
+    const body = {
+        guest_code: "abc",
+        address: document.getElementById("address-input").value,
+        facilities_data: localStorage.getItem("facilities"),
+    };
+
+    try {
+        const response = await api.post('/guest/scores', body);
+        console.log(response);
     } catch (e) {
         console.log(e)
     }
