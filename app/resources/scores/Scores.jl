@@ -13,7 +13,8 @@ export Score
   address::String = ""
   score::Float64 = 0.0
   facilities_data::String = "[]"
-  tmax::Int32 = 30
+  facilities_data_2::String = "[]"
+  tmax::Int32 = 30 * 60
   created_at::DateTime = now()
   updated_at::DateTime = now()
   deleted_at::Union{DateTime, Nothing} = nothing

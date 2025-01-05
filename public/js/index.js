@@ -5,6 +5,7 @@ const geometry = await google.maps.importLibrary("geometry");
 import { api } from '/js/api.js';
 
 let facilities = [];
+let facilities2 = [];
 let map;
 let geocoder;
 let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
@@ -14,7 +15,7 @@ const initMap = () => {
     if (localStorage.getItem("facilities")) {
         facilities = JSON.parse(localStorage.getItem("facilities"));
         for (let d of facilities) {
-            renderFacility(d.value, d.frequency);
+            renderFacility(d.name, d.frequency);
         }
     }
     resetMap();
@@ -55,7 +56,7 @@ const setupFacilityAdding = () => {
         const facilityInput = document.querySelector(".facility-input");
         const facility = facilityInput.value;
         
-        if (facilities.some(d => d.value === facility)) {
+        if (facilities.some(d => d.name === facility)) {
             alert("施設名が重複しています");
             return;
         }
@@ -63,7 +64,6 @@ const setupFacilityAdding = () => {
         if (facility) {
             facilityInput.value = "";
             addFacility(facility);
-            postFacilities();
         } else {
             alert("施設名を入力してください");
         }
@@ -71,8 +71,8 @@ const setupFacilityAdding = () => {
 };
 
 const addFacility = (facility) => {
-    facilities.push({"value": facility, "frequency": 1});
-    localStorage.setItem("facilities", JSON.stringify(facilities));
+    facilities.push({"name": facility, "frequency": 1});
+    postFacilities();
     renderFacility(facility, 1);
 }
 
@@ -94,19 +94,19 @@ const renderFacility = (facility, frequency) => {
         }
         li.classList.add(`frequency-${frequency}`);
         facilities.forEach(item => {
-            if (item.value === facility) {
+            if (item.name === facility) {
                 item.frequency = frequency;
             }
         });
-        localStorage.setItem("facilities", JSON.stringify(facilities));
+        postFacilities();
     }
 
     const deleteButton = document.createElement("button");
     deleteButton.classList.add("delete-button");
     deleteButton.textContent = "×";
     deleteButton.onclick = () => {
-        facilities = facilities.filter(d => d.value !== facility);
-        localStorage.setItem("facilities", JSON.stringify(facilities));
+        facilities = facilities.filter(d => d.name !== facility);
+        postFacilities();
         li.remove();
     };
     li.appendChild(deleteButton);
@@ -119,21 +119,29 @@ const setupSearchButton = () => {
             return;
         }
         await displayClosestRoutesForFacilities();
-        console.log("b")
         postScores();
     });
 };
 
 const displayClosestRoutesForFacilities = async () => {
     resetMap();
+    facilities2 = [];
     const displayedPlaces = new Set();
     const service = new PlacesService(map);
     for (const facility of facilities) {
         const results = await searchFacility(service, facility)
         if (results) {
-            await displayClosestRoute(results, displayedPlaces)
+            const tmp = await getClosestPlaceAndDirection(results)
+            const place = tmp[0];
+            const direction = tmp[1];
+            if (!displayedPlaces.has(place.place_id)) {
+                displayedPlaces.add(place.place_id);
+                await displayPlaceDirection(place, direction);
+            }
+            const minuteTime = direction.routes[0].legs[0].duration.value;
+            facilities2.push(({"name": place.name, "frequency": 1, "time": minuteTime}));
         }
-    };
+    }
 }
 
 const searchFacility = async (service, facility) => {
@@ -141,7 +149,7 @@ const searchFacility = async (service, facility) => {
         const request = {
             location: origin,
             radius: 500,
-            query: facility.value,
+            query: facility.name,
         };
 
         service.textSearch(request, (results, status) => {
@@ -155,21 +163,15 @@ const searchFacility = async (service, facility) => {
     });
 }
 
-const displayClosestRoute = async (results, displayedPlaces) => {
-    const nearestPlaces = getNearestPlaces(origin, results, 2);
+const getClosestPlaceAndDirection = async (places) => {
+    const nearestPlaces = getNearestPlaces(origin, places, 2);
     if (nearestPlaces.length > 0) {
-        const placeInfo = await getClosestPlaceAndDirection(nearestPlaces);
-        const place = placeInfo[0];
-        const placeDirection = placeInfo[1];
-        if (!displayedPlaces.has(place.place_id)) {
-            displayedPlaces.add(place.place_id);
-            await displayFacilityRoute(place, placeDirection);
-        }
+        return getClosestPlaceAndRoute(nearestPlaces);
     }
 }
 
 // 複数候補から最短ルートの場所とルートを取得する処理
-const getClosestPlaceAndDirection = async (places) => {
+const getClosestPlaceAndRoute = async (places) => {
     let min = Infinity;
     let nearestPlace;
     let nearestPlaceDirection;
@@ -201,7 +203,7 @@ const getClosestPlaceAndDirection = async (places) => {
     return [nearestPlace, nearestPlaceDirection];
 }
 
-const displayFacilityRoute = async (place, placeDirection) => {
+const displayPlaceDirection = async (place, placeDirection) => {
     const directionsRenderer = new google.maps.DirectionsRenderer({
         map: map,
         suppressMarkers: true,  // マーカーの重複を防ぐ
@@ -262,7 +264,7 @@ const createTimeIcon = (duration) => {
 const postFacilities = async () => {
     const body = {
         guest_code: "abc",
-        facilities_data: localStorage.getItem("facilities"),
+        facilities_data: JSON.stringify(facilities),
     };
 
     try {
@@ -276,12 +278,12 @@ const postScores = async () => {
     const body = {
         guest_code: "abc",
         address: document.getElementById("address-input").value,
-        facilities_data: localStorage.getItem("facilities"),
+        facilities_data: JSON.stringify(facilities),
+        facilities_data_2: JSON.stringify(facilities2),
     };
 
     try {
         const response = await api.post('/guest/scores', body);
-        console.log(response);
     } catch (e) {
         console.log(e)
     }
