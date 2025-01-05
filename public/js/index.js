@@ -19,7 +19,7 @@ const initMap = async () => {
     resetMap();
 
     setupFacilityAdding();
-    setupSearchButton();
+    setupEvaluateButton();
     setupAddressInput();
 };
 
@@ -111,8 +111,8 @@ const renderFacility = (facility, frequency) => {
     document.getElementById("facility-list").appendChild(li);
 }
 
-const setupSearchButton = () => {
-    document.getElementById("search-button").addEventListener("click", async () => {
+const setupEvaluateButton = () => {
+    document.getElementById("evaluate-button").addEventListener("click", async () => {
         if (facilities.length === 0) {
             return;
         }
@@ -127,7 +127,7 @@ const displayClosestRoutesForFacilities = async () => {
     const displayedPlaces = new Set();
     const service = new PlacesService(map);
     for (const facility of facilities) {
-        const results = await searchFacility(service, facility)
+        const results = await evaluateLocation(service, facility)
         if (results) {
             const tmp = await getClosestPlaceAndDirection(results)
             const place = tmp[0];
@@ -142,7 +142,7 @@ const displayClosestRoutesForFacilities = async () => {
     }
 }
 
-const searchFacility = async (service, facility) => {
+const evaluateLocation = async (service, facility) => {
     return new Promise((resolve, reject) => {
         const request = {
             location: origin,

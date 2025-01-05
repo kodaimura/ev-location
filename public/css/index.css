@@ -109,7 +109,7 @@ a:hover {
     border-radius: 10px;
 }
 
-#search-button {
+#evaluate-button {
     width: 100%;
     background-color: #4a90e2;
     color: white;
@@ -121,6 +121,6 @@ a:hover {
     transition: background-color 0.3s, transform 0.3s;
 }
 
-#search-button:hover {
+#evaluate-button:hover {
     background-color: #357ab7;
 }
