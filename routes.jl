@@ -31,6 +31,18 @@ route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
 end
 
+route("/api/guest/facilities", method="POST") do
+  return FacilitiesController.guest_post(get_context())
+end
+
+#route("/api/guest/scores", method="POST") do
+#  return ScoresController.guest_post(get_context())
+#end
+#
+#route("/api/facilities", method="POST") do
+#  return FacilitiesController.post(get_context())
+#end
+
 ###################################################################################################
 function redirect_login()
   Genie.Renderer.redirect("login")

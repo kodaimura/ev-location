@@ -2,6 +2,8 @@ const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
 const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
 const geometry = await google.maps.importLibrary("geometry");
 
+import { api } from '/js/api.js';
+
 let facilities = [];
 let map;
 let geocoder;
@@ -31,8 +33,8 @@ const setupAddressInput = () => {
             geocoder.geocode({ address: address }, (results, status) => {
                 if (status === "OK") {
                     const newOrigin = results[0].geometry.location;
-                    origin = newOrigin; // グローバルoriginを更新
-                    map.setCenter(newOrigin); // 地図を住所に移動
+                    origin = newOrigin;
+                    map.setCenter(newOrigin);
                     const originMarker = new AdvancedMarkerElement({
                         position: newOrigin,
                         map: map,
@@ -61,6 +63,7 @@ const setupFacilityAdding = () => {
         if (facility) {
             facilityInput.value = "";
             addFacility(facility);
+            postFacilities();
         } else {
             alert("施設名を入力してください");
         }
@@ -230,6 +233,20 @@ const createTimeIcon = (duration) => {
     iconDiv.innerText = duration;
 
     return iconDiv;
+};
+
+const postFacilities = async () => {
+    const body = {
+        guest_code: "abc",
+        facilities_data: localStorage.getItem("facilities"),
+    };
+
+    try {
+        await api.post('/guest/facilities', body);
+        window.location.replace('/');
+    } catch (e) {
+        console.log(e)
+    }
 };
 
 // 地図をロード
