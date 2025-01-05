@@ -137,7 +137,7 @@ const displayClosestRoutesForFacilities = async () => {
                 await displayPlaceDirection(place, direction);
             }
             const minuteTime = direction.routes[0].legs[0].duration.value;
-            facilities2.push(({"name": place.name, "frequency": 1, "time": minuteTime}));
+            facilities2.push(({"name": place.name, "frequency": facility.frequency, "time": minuteTime}));
         }
     }
 }
