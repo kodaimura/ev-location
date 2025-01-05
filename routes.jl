@@ -37,6 +37,10 @@ route("/api/guest/:guest_code/facilities", method="POST") do
   return FacilitiesController.guest_post(get_context(), params(:guest_code))
 end
 
+route("/api/guest/:guest_code/scores") do
+  return ScoresController.guest_get(get_context(), params(:guest_code))
+end
+
 route("/api/guest/:guest_code/scores", method="POST") do
   return ScoresController.guest_post(get_context(), params(:guest_code))
 end

@@ -21,6 +21,8 @@ const initMap = async () => {
     setupFacilityAdding();
     setupEvaluateButton();
     setupAddressInput();
+
+    getScores();
 };
 
 // 住所入力で地図を更新する処理
@@ -280,6 +282,50 @@ const postFacilities = async () => {
         await api.post(`/guest/${guest_code}/facilities`, body);
     } catch (e) {
         console.log(e)
+    }
+};
+
+const getScores = async () => {
+    const guest_code = localStorage.getItem("guest_code");
+    const response = await api.get(`/guest/${guest_code}/scores`);
+    if (response.scores) {
+        const tableElement = document.getElementById('score-table');
+
+        for (let s of response.scores) {
+            const row = document.createElement('tr');
+
+            const addressCell = document.createElement('td');
+            addressCell.textContent = s.address;
+            const scoreCell = document.createElement('td');
+            scoreCell.textContent = s.score;
+
+            const facilitiesCell = document.createElement('td');
+            const facilitiesList = document.createElement('ul');
+            facilitiesList.classList.add('facilities-list');
+
+            for (let f of JSON.parse(s.facilities_data_2)) {
+                const listItem = document.createElement('li');
+                listItem.textContent = f.name;
+                facilitiesList.appendChild(listItem);
+            }
+
+            facilitiesCell.appendChild(facilitiesList);
+
+            const deleteCell = document.createElement('td');
+            const deleteButton = document.createElement("button");
+            deleteButton.textContent = "削除";
+            deleteButton.onclick = () => {
+
+            };
+            deleteCell.appendChild(deleteButton);
+            
+            row.appendChild(addressCell);
+            row.appendChild(scoreCell);
+            row.appendChild(facilitiesCell);
+            row.appendChild(deleteCell);
+
+            tableElement.appendChild(row);
+        }
     }
 };
 

@@ -6,7 +6,17 @@ import JSON
 import SearchLight
 import .Scores: Score
 
-export guest_post
+export guest_get, guest_post
+
+function guest_get(guest_code::AbstractString)::Tuple{Vector{Score}, Bool}
+    try
+        scores = SearchLight.find(Score; guest_code = guest_code, order=["score DESC"])
+        return scores, true
+    catch e
+        println(e)
+        return Score[], false
+    end
+end
 
 function guest_post(guest_code::AbstractString, address::String, facilities_data::String, facilities_data_2::String)::Tuple{Float64, Bool}
     try

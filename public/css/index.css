@@ -124,3 +124,30 @@ a:hover {
 #evaluate-button:hover {
     background-color: #357ab7;
 }
+
+#score-table {
+    border-collapse: collapse;
+    width: 100%;
+    text-align: left;
+}
+
+#score-table th {
+    border: 1px solid #ddd;
+    padding: 3px;
+    background-color: #f4f4f4;
+    color: #333;
+    font-weight: bold;
+}
+
+#score-table td {
+    border: 1px solid #ddd;
+    padding: 3px 10px;
+    font-size: 0.9rem;
+}
+
+.facilities-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+}
