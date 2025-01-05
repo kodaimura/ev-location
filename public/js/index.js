@@ -12,6 +12,9 @@ let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = async () => {
     geocoder = new google.maps.Geocoder();
+    if (!localStorage.getItem("guest_code")) {
+        localStorage.setItem("guest_code", generateGuestCode())
+    }
     getFacilities();
     resetMap();
 
@@ -100,9 +103,6 @@ const renderFacility = (facility, frequency) => {
     deleteButton.classList.add("delete-button");
     deleteButton.textContent = "×";
     deleteButton.onclick = () => {
-        console.log(facility)
-        console.log(facilities);
-        console.log(456)
         facilities = facilities.filter(d => d.name !== facility);
         postFacilities();
         li.remove();
@@ -260,7 +260,7 @@ const createTimeIcon = (duration) => {
 };
 
 const getFacilities = async () => {
-    const guest_code = "abc";
+    const guest_code = localStorage.getItem("guest_code");
     const response = await api.get(`/guest/${guest_code}/facilities`);
     if (response.facilities) {
         facilities = JSON.parse(response.facilities.facilities_data);
@@ -271,7 +271,7 @@ const getFacilities = async () => {
 };
 
 const postFacilities = async () => {
-    const guest_code = "abc";
+    const guest_code = localStorage.getItem("guest_code");
     const body = {
         facilities_data: JSON.stringify(facilities),
     };
@@ -284,7 +284,7 @@ const postFacilities = async () => {
 };
 
 const postScores = async () => {
-    const guest_code = "abc";
+    const guest_code = localStorage.getItem("guest_code");;
     const body = {
         address: document.getElementById("address-input").value,
         facilities_data: JSON.stringify(facilities),
@@ -297,6 +297,16 @@ const postScores = async () => {
         console.log(e)
     }
 };
+
+const generateGuestCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 11; i++) {
+        const randomIndex = Math.floor(Math.random() * chars.length);
+        result += chars[randomIndex];
+    }
+    return result;
+}
 
 // 地図をロード
 window.onload = initMap;
