@@ -6,7 +6,7 @@ import Genie.Renderer.Json as RenderJson
 import Genie.Requests as Requests
 import .ScoresService
 
-export guest_get, guest_post
+export guest_get, guest_post, guest_delete
 
 function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     missing_keys = [key for key in keys if !haskey(request, key)]
@@ -35,6 +35,15 @@ function guest_post(ctx::Dict{String, Any}, guest_code::AbstractString)
     score, success = ScoresService.guest_post(guest_code, address, facilities_data, facilities_data_2)
     if success
         return RenderJson.json(Dict("score" => score); status=200)
+    else
+        return RenderJson.json(Dict(); status=500)
+    end
+end
+
+function guest_delete(ctx::Dict{String, Any}, guest_code::AbstractString, id::AbstractString)
+    success = ScoresService.guest_delete(guest_code, id)
+    if success
+        return RenderJson.json(Dict(); status=200)
     else
         return RenderJson.json(Dict(); status=500)
     end

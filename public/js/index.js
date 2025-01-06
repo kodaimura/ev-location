@@ -119,7 +119,7 @@ const setupEvaluateButton = () => {
             return;
         }
         await displayClosestRoutesForFacilities();
-        postScores();
+        postScore();
     });
 };
 
@@ -289,7 +289,8 @@ const getScores = async () => {
     const guest_code = localStorage.getItem("guest_code");
     const response = await api.get(`/guest/${guest_code}/scores`);
     if (response.scores) {
-        const tableElement = document.getElementById('score-table');
+        const tableElement = document.querySelector("#score-table tbody");
+        tableElement.innerHTML = "";
 
         for (let s of response.scores) {
             const row = document.createElement('tr');
@@ -315,7 +316,8 @@ const getScores = async () => {
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "削除";
             deleteButton.onclick = () => {
-
+                console.log(s.id.value)
+                deleteScore(s.id.value);
             };
             deleteCell.appendChild(deleteButton);
             
@@ -329,7 +331,7 @@ const getScores = async () => {
     }
 };
 
-const postScores = async () => {
+const postScore = async () => {
     const guest_code = localStorage.getItem("guest_code");;
     const body = {
         address: document.getElementById("address-input").value,
@@ -339,6 +341,18 @@ const postScores = async () => {
 
     try {
         const response = await api.post(`/guest/${guest_code}/scores`, body);
+    } catch (e) {
+        console.log(e)
+    }
+};
+
+const deleteScore = async (id) => {
+    const guest_code = localStorage.getItem("guest_code");;
+    try {
+        if (confirm("削除します")) {
+            await api.delete(`/guest/${guest_code}/scores/${id}`);
+            getScores();
+        }
     } catch (e) {
         console.log(e)
     }

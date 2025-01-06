@@ -44,6 +44,11 @@ end
 route("/api/guest/:guest_code/scores", method="POST") do
   return ScoresController.guest_post(get_context(), params(:guest_code))
 end
+
+route("/api/guest/:guest_code/scores/:id", method="DELETE") do
+  return ScoresController.guest_delete(get_context(), params(:guest_code), params(:id))
+end
+
 #
 #route("/api/facilities", method="POST") do
 #  return FacilitiesController.post(get_context())
