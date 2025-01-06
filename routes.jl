@@ -9,7 +9,7 @@ import .FacilitiesController
 import .ScoresController
 
 route("/") do
-  #is_authorized() || return redirect_login()
+  #is_authorized()
   return serve_static_file("index.html")
 end
 
@@ -27,6 +27,14 @@ end
 
 route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
+end
+
+route("/api/accounts/me") do
+  if is_authorized()
+    payload = get_context()["payload"]
+    return Genie.Renderer.Json.json(Dict("id" => payload["id"], "account_name" => payload["account_name"]); status=200)
+  end
+  return Genie.Renderer.Json.json(Dict(); status=401)
 end
 
 route("/api/guest/:guest_code/facilities") do
