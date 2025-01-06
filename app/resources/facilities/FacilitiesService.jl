@@ -2,7 +2,7 @@ module FacilitiesService
 
 include("Facilities.jl")
 
-import SearchLight
+using SearchLight
 import .Facilities: Facility
 
 export guest_get, guest_post

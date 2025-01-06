@@ -3,10 +3,10 @@ module AccountsService
 include("../core/Jwt.jl")
 include("Accounts.jl")
 
+using SearchLight
 import SHA
 import Base64
 import Dates
-import SearchLight
 import .Accounts: Account
 import .Jwt
 
