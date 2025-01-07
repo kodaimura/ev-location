@@ -5,6 +5,7 @@ using Genie.Renderer
 using Genie.Renderer.Json
 using HTTP
 import .Jwt
+import .CommonsController
 import .FacilitiesController
 import .ScoresController
 
@@ -27,6 +28,10 @@ end
 
 route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
+end
+
+route("/api/handover", method="POST") do
+  return CommonsController.handover(get_context())
 end
 
 route("/api/accounts/me") do

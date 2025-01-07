@@ -4,6 +4,7 @@ const geometry = await google.maps.importLibrary("geometry");
 
 import { api } from '/js/api.js';
 
+let login = false;
 let facilities = [];
 let facilities2 = [];
 let map;
@@ -12,17 +13,27 @@ let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
 
 const initMap = async () => {
     geocoder = new google.maps.Geocoder();
-    if (!localStorage.getItem("guest_code")) {
+    await getAccount();
+    if (!login && !localStorage.getItem("guest_code")) {
         localStorage.setItem("guest_code", generateGuestCode())
+    } else if (login && localStorage.getItem("guest_code")) {
+        if (confirm("ゲストデータを引き継ぎますか？")) {
+            try {
+                await postHandover();
+            } catch (e) {
+                alert("申し訳ありません。引き継ぎに失敗しました。")
+            }
+        }
+        localStorage.removeItem("guest_code");
     }
     getFacilities();
-    resetMap();
+    getScores();
 
+    resetMap();
     setupFacilityAdding();
     setupEvaluateButton();
     setupAddressInput();
-
-    getScores();
+    
 };
 
 // 住所入力で地図を更新する処理
@@ -262,8 +273,8 @@ const createTimeIcon = (duration) => {
 };
 
 const getFacilities = async () => {
-    const guest_code = localStorage.getItem("guest_code");
-    const response = await api.get(`/guest/${guest_code}/facilities`);
+    const url = login ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
+    const response = await api.get(url);
     if (response.facilities) {
         facilities = JSON.parse(response.facilities.facilities_data);
         for (let f of facilities) {
@@ -273,21 +284,21 @@ const getFacilities = async () => {
 };
 
 const postFacilities = async () => {
-    const guest_code = localStorage.getItem("guest_code");
+    const url = login ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
     const body = {
         facilities_data: JSON.stringify(facilities),
     };
 
     try {
-        await api.post(`/guest/${guest_code}/facilities`, body);
+        await api.post(url, body);
     } catch (e) {
         console.log(e)
     }
 };
 
 const getScores = async () => {
-    const guest_code = localStorage.getItem("guest_code");
-    const response = await api.get(`/guest/${guest_code}/scores`);
+    const url = login ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
+    const response = await api.get(url);
     if (response.scores) {
         const tableElement = document.querySelector("#score-table tbody");
         tableElement.innerHTML = "";
@@ -332,7 +343,8 @@ const getScores = async () => {
 };
 
 const postScore = async () => {
-    const guest_code = localStorage.getItem("guest_code");;
+    const url = login ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
+
     const body = {
         address: document.getElementById("address-input").value,
         facilities_data: JSON.stringify(facilities),
@@ -340,23 +352,40 @@ const postScore = async () => {
     };
 
     try {
-        const response = await api.post(`/guest/${guest_code}/scores`, body);
+        const response = await api.post(url, body);
     } catch (e) {
         console.log(e)
     }
 };
 
 const deleteScore = async (id) => {
-    const guest_code = localStorage.getItem("guest_code");;
+    const url = login ? `scores/${id}` : `guest/${localStorage.getItem("guest_code")}/scores/${id}`
     try {
         if (confirm("削除します")) {
-            await api.delete(`/guest/${guest_code}/scores/${id}`);
+            await api.delete(url);
             getScores();
         }
     } catch (e) {
         console.log(e)
     }
 };
+
+const getAccount = async () => {
+    try {
+        const response = await api.get(`accounts/me`);
+        document.getElementById("account_name").innerText = response.account_name;
+        login = true;
+    } catch (e) {
+        console.log(e)
+    }
+}
+
+const postHandover = async () => {
+    const body = {
+        guest_code: localStorage.getItem("guest_code")
+    };
+    await api.post('handover', body);
+}
 
 const generateGuestCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
