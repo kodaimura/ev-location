@@ -62,6 +62,26 @@ route("/api/guest/:guest_code/scores/:id", method="DELETE") do
   return ScoresController.guest_delete(get_context(), params(:guest_code), params(:id))
 end
 
+route("/api/facilities") do
+  return FacilitiesController.get(get_context())
+end
+
+route("/api/facilities", method="POST") do
+  return FacilitiesController.post(get_context())
+end
+
+route("/api/scores") do
+  return ScoresController.get(get_context())
+end
+
+route("/api/scores", method="POST") do
+  return ScoresController.post(get_context())
+end
+
+route("/api/scores/:id", method="DELETE") do
+  return ScoresController.delete(get_context(), params(:id))
+end
+
 #
 #route("/api/facilities", method="POST") do
 #  return FacilitiesController.post(get_context())
@@ -80,7 +100,9 @@ function get_context()::Dict{String, Any}
   cookie = Genie.Cookies.getcookies(Genie.Requests.request())
   token = get_cookie_value(cookie, "token")
   ctx = Dict{String, Any}()
-  ctx["payload"] = Jwt.decode_payload(token)
+  if !isnothing(token)
+    ctx["payload"] = Jwt.decode_payload(token)
+  end
   return ctx
 end
 

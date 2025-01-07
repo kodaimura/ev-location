@@ -352,7 +352,7 @@ const postScore = async () => {
     };
 
     try {
-        const response = await api.post(url, body);
+        await api.post(url, body);
     } catch (e) {
         console.log(e)
     }
