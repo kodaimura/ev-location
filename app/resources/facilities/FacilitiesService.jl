@@ -9,7 +9,7 @@ export guest_get, guest_post, get, post
 
 function guest_get(guest_code::AbstractString)::Tuple{Union{Facility, Nothing}, Bool}
     try
-        facility = SearchLight.findone(Facility; guest_code = guest_code)
+        facility = SearchLight.findone(Facility, guest_code = guest_code)
         return facility, true
     catch e
         return nothing, false
@@ -17,7 +17,7 @@ function guest_get(guest_code::AbstractString)::Tuple{Union{Facility, Nothing}, 
 end
 
 function guest_post(guest_code::AbstractString, facilities_data::String)::Bool
-    existing_facility = SearchLight.findone(Facility; guest_code = guest_code)
+    existing_facility = SearchLight.findone(Facility, guest_code = guest_code)
 
     try
         if existing_facility !== nothing
@@ -35,7 +35,7 @@ end
 
 function get(account_id::Int32)::Tuple{Union{Facility, Nothing}, Bool}
     try
-        facility = SearchLight.findone(Facility; account_id = account_id)
+        facility = SearchLight.findone(Facility, account_id = account_id)
         return facility, true
     catch e
         return nothing, false
@@ -43,7 +43,7 @@ function get(account_id::Int32)::Tuple{Union{Facility, Nothing}, Bool}
 end
 
 function post(account_id::Int32, facilities_data::String)::Bool
-    existing_facility = SearchLight.findone(Facility; account_id = account_id)
+    existing_facility = SearchLight.findone(Facility, account_id = account_id)
 
     try
         if existing_facility !== nothing

@@ -23,7 +23,7 @@ function signup(account_name::String, account_password::String)::Bool
 end
 
 function login(account_name::String, account_password::String)::Union{Nothing, Account}
-    account = SearchLight.findone(Account; account_name = account_name)
+    account = SearchLight.findone(Account, account_name = account_name)
     if account === nothing
         return nothing
     end
