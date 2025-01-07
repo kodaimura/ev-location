@@ -13,7 +13,7 @@ export Facility
   facilities_data::String = "[]"
   created_at::DateTime = now()
   updated_at::DateTime = now()
-  deleted_at::Union{DateTime, Nothing} = nothing
+  deleted_at::Any = nothing
 end
 
 end

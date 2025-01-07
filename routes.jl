@@ -10,7 +10,7 @@ import .FacilitiesController
 import .ScoresController
 
 route("/") do
-  #is_authorized()
+  #is_authorized() || return json_unauthorized()
   return serve_static_file("index.html")
 end
 
@@ -63,22 +63,27 @@ route("/api/guest/:guest_code/scores/:id", method="DELETE") do
 end
 
 route("/api/facilities") do
+  is_authorized() || return json_unauthorized()
   return FacilitiesController.get(get_context())
 end
 
 route("/api/facilities", method="POST") do
+  is_authorized() || return json_unauthorized()
   return FacilitiesController.post(get_context())
 end
 
 route("/api/scores") do
+  is_authorized() || return json_unauthorized()
   return ScoresController.get(get_context())
 end
 
 route("/api/scores", method="POST") do
+  is_authorized() || return json_unauthorized()
   return ScoresController.post(get_context())
 end
 
 route("/api/scores/:id", method="DELETE") do
+  is_authorized() || return json_unauthorized()
   return ScoresController.delete(get_context(), params(:id))
 end
 

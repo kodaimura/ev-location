@@ -327,7 +327,6 @@ const getScores = async () => {
             const deleteButton = document.createElement("button");
             deleteButton.textContent = "削除";
             deleteButton.onclick = () => {
-                console.log(s.id.value)
                 deleteScore(s.id.value);
             };
             deleteCell.appendChild(deleteButton);
