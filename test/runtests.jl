@@ -17,11 +17,11 @@ Genie.loadapp()
 cd(@__DIR__)
 Pkg.activate(".")
 
-# !!! Main.UserApp is configured as an alias for Main.FLocation and you might encounter it in some tests
-using Main.FLocation, Test, TestSetExtensions, Logging
+# !!! Main.UserApp is configured as an alias for Main.EvLoc and you might encounter it in some tests
+using Main.EvLoc, Test, TestSetExtensions, Logging
 
 Logging.global_logger(NullLogger())
 
-@testset ExtendedTestSet "FLocation tests" begin
+@testset ExtendedTestSet "EvLoc tests" begin
   @includetests ARGS
 end

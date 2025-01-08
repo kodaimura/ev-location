@@ -2,7 +2,7 @@ env: ENV["GENIE_ENV"]
 
 dev:
   adapter: PostgreSQL
-  database: f_location
+  database: ev_loc
   host: db
   username: postgres
   password: postgres

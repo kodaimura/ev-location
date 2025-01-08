@@ -10,7 +10,7 @@ services:
       - DB_PORT=5432
       - DB_USER=postgres
       - DB_PASSWORD=postgres
-      - DB_NAME=f_location
+      - DB_NAME=ev_loc
       - JWT_SECRET=secret
     depends_on:
       - db
@@ -22,7 +22,7 @@ services:
   db:
     image: postgres:16.1
     environment:
-      POSTGRES_DB: f_location
+      POSTGRES_DB: ev_loc
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
