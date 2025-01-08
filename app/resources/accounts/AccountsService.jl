@@ -36,7 +36,7 @@ function login(account_name::String, account_password::String)::Union{Nothing, A
 end
 
 function create_jwt(account::Account)::String
-    payload = Dict("id" => account.id.value, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Hour(1)))
+    payload = Dict("id" => account.id.value, "account_name" => account.account_name, "exp" => string(Dates.now() + Dates.Month(3)))
     return Jwt.create(payload)
 end
 
