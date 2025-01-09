@@ -4,10 +4,6 @@ using Genie.Cookies
 using Genie.Renderer
 using Genie.Renderer.Json
 using HTTP
-import .Jwt
-import .CommonsController
-import .FacilitiesController
-import .ScoresController
 
 route("/") do
   #is_authorized() || return json_unauthorized()
