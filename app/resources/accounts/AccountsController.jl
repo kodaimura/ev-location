@@ -18,12 +18,11 @@ end
 
 function signup(ctx::Dict{String, Any})
     request = Requests.jsonpayload()
-    validate_request_keys(request, ["account_name", "account_password"])
-
-    account_name = request["account_name"]
-    account_password = request["account_password"]
-    
     try
+        validate_request_keys(request, ["account_name", "account_password"])
+        account_name = request["account_name"]
+        account_password = request["account_password"]
+
         AccountsService.signup(account_name, account_password)
         return RendererJson.json(Dict(); status=201)
     catch e
@@ -33,12 +32,11 @@ end
 
 function login(ctx::Dict{String, Any})
     request = Requests.jsonpayload()
-    validate_request_keys(request, ["account_name", "account_password"])
-
-    account_name = request["account_name"]
-    account_password = request["account_password"]
-    
     try
+        validate_request_keys(request, ["account_name", "account_password"])
+        account_name = request["account_name"]
+        account_password = request["account_password"]
+        
         account = AccountsService.login(account_name, account_password)
         if isnothing(account)
             throw(UnauthorizedError())

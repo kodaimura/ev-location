@@ -14,8 +14,6 @@ import .Jwt
 import .Accounts: Account
 @reexport using .Errors
 
-export signup, login
-
 function signup(account_name::String, account_password::String)
     try
         account = SearchLight.findone(Account, account_name = account_name)
