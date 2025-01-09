@@ -300,7 +300,7 @@ const getScores = async () => {
     const url = login ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
     const response = await api.get(url);
     if (response.scores) {
-        const tableElement = document.querySelector("#score-table tbody");
+        const tableElement = document.querySelector("#score-table tbody:nth-of-type(2)");
         tableElement.innerHTML = "";
 
         for (let s of response.scores) {
@@ -351,7 +351,33 @@ const postScore = async () => {
     };
 
     try {
-        await api.post(url, body);
+        const response = await api.post(url, body);
+        const tableElement = document.querySelector("#score-table tbody");
+        tableElement.innerHTML = "";
+        const row = document.createElement('tr');
+
+        const addressCell = document.createElement('td');
+        addressCell.textContent = body.address;
+        const scoreCell = document.createElement('td');
+        scoreCell.textContent = response.score;
+        const facilitiesCell = document.createElement('td');
+        const facilitiesList = document.createElement('ul');
+        facilitiesList.classList.add('facilities-list');
+        for (let f of facilities2) {
+            const listItem = document.createElement('li');
+            listItem.textContent = f.name;
+            facilitiesList.appendChild(listItem);
+        }
+        facilitiesCell.appendChild(facilitiesList);
+        const deleteCell = document.createElement('td');
+
+        row.appendChild(addressCell);
+        row.appendChild(scoreCell);
+        row.appendChild(facilitiesCell);
+        row.appendChild(deleteCell);
+
+        tableElement.appendChild(row);
+        getScores();
     } catch (e) {
         console.log(e)
     }
