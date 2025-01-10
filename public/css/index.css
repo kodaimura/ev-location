@@ -6,9 +6,51 @@ body {
 }
 
 .page-header {
-    background-color: #ffffff;
-    padding: 20px 30px;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 2px solid #e0e0e0;
+    padding: 15px 20px;
+}
+  
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+  
+.header-logo .logo-link {
+    color: #0077cc;
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+  
+.header-logo .logo-link:hover {
+    text-decoration: underline;
+}
+  
+.header-account {
+    margin-left: auto;
+    margin-right: 20px;
+    font-size: 1rem;
+    font-weight: 400;
+    color: #333;
+}
+  
+.header-login .login-link {
+    color: #0077cc;
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 8px 16px;
+    border: 2px solid #0077cc;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+  
+.header-login .login-link:hover {
+    background-color: #0077cc;
+    color: #ffffff;
 }
 
 .hero-header {
@@ -113,7 +155,7 @@ a:hover {
     width: 100%;
     background-color: #4a90e2;
     color: white;
-    padding: 15px 0;
+    padding: 10px 0;
     font-size: 1.2rem;
     border: none;
     border-radius: 5px;
@@ -129,6 +171,7 @@ a:hover {
     border-collapse: collapse;
     width: 100%;
     text-align: left;
+    margin-top: 30px;
 }
 
 #score-table th {
@@ -137,6 +180,7 @@ a:hover {
     background-color: #f4f4f4;
     color: #333;
     font-weight: bold;
+    text-align: center;
 }
 
 #score-table td {
@@ -150,4 +194,14 @@ a:hover {
     padding: 0;
     margin: 0;
     font-size: 0.8rem;
+}
+
+.delete-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
 }

@@ -308,6 +308,7 @@ const getScores = async () => {
             const addressCell = document.createElement('td');
             addressCell.textContent = s.address;
             const scoreCell = document.createElement('td');
+            scoreCell.style.textAlign = 'center';
             scoreCell.textContent = s.score;
 
             const facilitiesCell = document.createElement('td');
@@ -323,8 +324,10 @@ const getScores = async () => {
             facilitiesCell.appendChild(facilitiesList);
 
             const deleteCell = document.createElement('td');
+            deleteCell.style.textAlign = 'center';
             const deleteButton = document.createElement("button");
-            deleteButton.textContent = "削除";
+            deleteButton.classList.add('delete-button');
+            deleteButton.innerHTML = `<i class="fa-solid fa-trash"></i>`;
             deleteButton.onclick = () => {
                 deleteScore(s.id.value);
             };

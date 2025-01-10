@@ -4,24 +4,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Genie :: The highly productive Julia web framework</title>
+  <title>ev-location</title>
   <link rel="stylesheet" href="/css/index.css">
   <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
       ({ key: "AIzaSyDzM1I0GQ4j-MCwN_v5E1kJ5IlFfWtRw1U", v: "weekly" });</script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
-<body id="page-top" data-spy="scroll" data-target=".side-menu">
+<body>
   <header class="page-header">
-    <div class="container-fluid">
-      <div class="row justify-content-between align-items-center">
-        <div class="col-auto">
-          <a href="#" class="logo">Genie</a>
-        </div>
-        <div class="col-auto">
-          <a href="login" class="btn btn-link">ログイン</a>
-        </div>
-        <div id="account_name"></div>
+    <div class="header-container">
+      <div class="header-logo">
+        <a href="#" class="logo-link">ev-location</a>
+      </div>
+      <div id="account_name" class="header-account">アカウント名</div>
+      <div class="header-login">
+        <a href="login" class="login-link">ログイン</a>
       </div>
     </div>
   </header>
@@ -94,9 +93,9 @@
         <thead>
           <tr>
             <th>物件住所</th>
-            <th style="width: 50px;">スコア</th>
+            <th style="width: 55px;">スコア</th>
             <th>周辺施設</th>
-            <th>削除</th>
+            <th style="width: 55px;">削除</th>
           </tr>
         </thead>
         <tbody style="background-color: #FFFF8F;"></tbody> 
