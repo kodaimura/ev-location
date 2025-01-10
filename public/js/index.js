@@ -4,19 +4,20 @@ const geometry = await google.maps.importLibrary("geometry");
 
 import { api } from '/js/api.js';
 
-let login = false;
-let facilities = [];
-let facilities2 = [];
-let map;
-let geocoder;
-let origin = { lat: 35.68139565951991, lng: 139.76711235533344 };
+let LOGIN = false;
+let FACILITIES = [];
+let FACILITIES2 = [];
+let MAP;
+let GEOCODER;
+let ORIGIN = { lat: 35.68139565951991, lng: 139.76711235533344 };
+let ADDRESS = '';
 
 const initMap = async () => {
-    geocoder = new google.maps.Geocoder();
+    GEOCODER = new google.maps.Geocoder();
     await getAccount();
-    if (!login && !localStorage.getItem("guest_code")) {
+    if (!LOGIN && !localStorage.getItem("guest_code")) {
         localStorage.setItem("guest_code", generateGuestCode())
-    } else if (login && localStorage.getItem("guest_code")) {
+    } else if (LOGIN && localStorage.getItem("guest_code")) {
         if (confirm("ゲストデータを引き継ぎますか？")) {
             try {
                 await postHandover();
@@ -42,21 +43,22 @@ const setupAddressInput = () => {
         const address = document.getElementById("address-input").value;
 
         if (address) {
-            geocoder.geocode({ address: address }, (results, status) => {
+            GEOCODER.geocode({ address: address }, (results, status) => {
                 if (status === "OK") {
                     const newOrigin = results[0].geometry.location;
-                    origin = newOrigin;
-                    map.setCenter(newOrigin);
+                    ORIGIN = newOrigin;
+                    MAP.setCenter(newOrigin);
                     const originMarker = new AdvancedMarkerElement({
                         position: newOrigin,
-                        map: map,
+                        map: MAP,
                     });
+                    ADDRESS = address;
                 } else {
                     alert("住所の取得に失敗しました。再試行してください。");
                 }
             });
         } else {
-            alert("住所を入力してください！");
+            alert("住所を入力してください。");
         }
     });
 };
@@ -67,8 +69,8 @@ const setupFacilityAdding = () => {
         const facilityInput = document.querySelector(".facility-input");
         const facility = facilityInput.value;
         
-        if (facilities.some(d => d.name === facility)) {
-            alert("施設名が重複しています");
+        if (FACILITIES.some(d => d.name === facility)) {
+            alert("施設名が重複しています。");
             return;
         }
 
@@ -76,13 +78,13 @@ const setupFacilityAdding = () => {
             facilityInput.value = "";
             addFacility(facility);
         } else {
-            alert("施設名を入力してください");
+            alert("施設名を入力してください。");
         }
     });
 };
 
 const addFacility = (facility) => {
-    facilities.push({"name": facility, "frequency": 1});
+    FACILITIES.push({"name": facility, "frequency": 1});
     postFacilities();
     renderFacility(facility, 1);
 }
@@ -104,7 +106,7 @@ const renderFacility = (facility, frequency) => {
             frequency = 1;
         }
         li.classList.add(`frequency-${frequency}`);
-        facilities.forEach(item => {
+        FACILITIES.forEach(item => {
             if (item.name === facility) {
                 item.frequency = frequency;
             }
@@ -116,7 +118,7 @@ const renderFacility = (facility, frequency) => {
     deleteButton.classList.add("delete-button");
     deleteButton.textContent = "×";
     deleteButton.onclick = () => {
-        facilities = facilities.filter(d => d.name !== facility);
+        FACILITIES = FACILITIES.filter(d => d.name !== facility);
         postFacilities();
         li.remove();
     };
@@ -126,9 +128,18 @@ const renderFacility = (facility, frequency) => {
 
 const setupEvaluateButton = () => {
     document.getElementById("evaluate-button").addEventListener("click", async () => {
-        if (facilities.length === 0) {
+        if (FACILITIES.length === 0) {
+            alert("施設を追加してください。");
             return;
         }
+        if (document.getElementById("address-input").value == "") {
+            alert("物件を設定してください。");
+            return;
+        }
+        if (document.getElementById("address-input").value != ADDRESS) {
+            alert("物件を設定してください。");
+            return;
+        };
         await displayClosestRoutesForFacilities();
         postScore();
     });
@@ -136,10 +147,10 @@ const setupEvaluateButton = () => {
 
 const displayClosestRoutesForFacilities = async () => {
     resetMap();
-    facilities2 = [];
+    FACILITIES2 = [];
     const displayedPlaces = new Set();
-    const service = new PlacesService(map);
-    for (const facility of facilities) {
+    const service = new PlacesService(MAP);
+    for (const facility of FACILITIES) {
         const results = await evaluateLocation(service, facility)
         if (results) {
             const tmp = await getClosestPlaceAndDirection(results)
@@ -150,7 +161,7 @@ const displayClosestRoutesForFacilities = async () => {
                 await displayPlaceDirection(place, direction);
             }
             const minuteTime = direction.routes[0].legs[0].duration.value;
-            facilities2.push(({"name": place.name, "frequency": facility.frequency, "time": minuteTime}));
+            FACILITIES2.push(({"name": place.name, "frequency": facility.frequency, "time": minuteTime}));
         }
     }
 }
@@ -158,7 +169,7 @@ const displayClosestRoutesForFacilities = async () => {
 const evaluateLocation = async (service, facility) => {
     return new Promise((resolve, reject) => {
         const request = {
-            location: origin,
+            location: ORIGIN,
             radius: 500,
             query: facility.name,
         };
@@ -175,7 +186,7 @@ const evaluateLocation = async (service, facility) => {
 }
 
 const getClosestPlaceAndDirection = async (places) => {
-    const nearestPlaces = getNearestPlaces(origin, places, 2);
+    const nearestPlaces = getNearestPlaces(ORIGIN, places, 2);
     if (nearestPlaces.length > 0) {
         return getClosestPlaceAndRoute(nearestPlaces);
     }
@@ -189,7 +200,7 @@ const getClosestPlaceAndRoute = async (places) => {
     for (const place of places) {
         const directionsService = new google.maps.DirectionsService();
         const directionsRequest = {
-            origin: origin,
+            origin: ORIGIN,
             destination: place.geometry.location,
             travelMode: google.maps.TravelMode.WALKING,
         };
@@ -216,28 +227,28 @@ const getClosestPlaceAndRoute = async (places) => {
 
 const displayPlaceDirection = async (place, placeDirection) => {
     const directionsRenderer = new google.maps.DirectionsRenderer({
-        map: map,
+        map: MAP,
         suppressMarkers: true,  // マーカーの重複を防ぐ
     });
     directionsRenderer.setDirections(placeDirection);
     const marker = new AdvancedMarkerElement({
         position: place.geometry.location,
-        map: map,
+        map: MAP,
         content: createTimeIcon(placeDirection.routes[0].legs[0].duration.text),
     });
 }
 
 // 地図をリセットする処理
 const resetMap = () => {
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: origin,
+    MAP = new google.maps.Map(document.getElementById('map'), {
+        center: ORIGIN,
         zoom: 14,
         mapId: "MAP_ID"
     });
 
     const originMarker = new AdvancedMarkerElement({
-        position: origin,
-        map: map,
+        position: ORIGIN,
+        map: MAP,
     });
 };
 
@@ -273,20 +284,20 @@ const createTimeIcon = (duration) => {
 };
 
 const getFacilities = async () => {
-    const url = login ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
+    const url = LOGIN ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
     const response = await api.get(url);
     if (response.facilities) {
-        facilities = JSON.parse(response.facilities.facilities_data);
-        for (let f of facilities) {
+        FACILITIES = JSON.parse(response.facilities.facilities_data);
+        for (let f of FACILITIES) {
             renderFacility(f.name, f.frequency);
         }
     }
 };
 
 const postFacilities = async () => {
-    const url = login ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
+    const url = LOGIN ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
     const body = {
-        facilities_data: JSON.stringify(facilities),
+        facilities_data: JSON.stringify(FACILITIES),
     };
 
     try {
@@ -297,7 +308,7 @@ const postFacilities = async () => {
 };
 
 const getScores = async () => {
-    const url = login ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
+    const url = LOGIN ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
     const response = await api.get(url);
     if (response.scores) {
         const tableElement = document.querySelector("#score-table tbody:nth-of-type(2)");
@@ -342,12 +353,11 @@ const getScores = async () => {
 };
 
 const postScore = async () => {
-    const url = login ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
-
+    const url = LOGIN ? 'scores' : `guest/${localStorage.getItem("guest_code")}/scores`
     const body = {
-        address: document.getElementById("address-input").value,
-        facilities_data: JSON.stringify(facilities),
-        facilities_data_2: JSON.stringify(facilities2),
+        address: ADDRESS,
+        facilities_data: JSON.stringify(FACILITIES),
+        facilities_data_2: JSON.stringify(FACILITIES2),
     };
 
     try {
@@ -357,13 +367,13 @@ const postScore = async () => {
         const row = document.createElement('tr');
 
         const addressCell = document.createElement('td');
-        addressCell.textContent = body.address;
+        addressCell.textContent = ADDRESS;
         const scoreCell = document.createElement('td');
         scoreCell.textContent = response.score;
         const facilitiesCell = document.createElement('td');
         const facilitiesList = document.createElement('ul');
         facilitiesList.classList.add('facilities-list');
-        for (let f of facilities2) {
+        for (let f of FACILITIES2) {
             const listItem = document.createElement('li');
             listItem.textContent = f.name;
             facilitiesList.appendChild(listItem);
@@ -384,7 +394,7 @@ const postScore = async () => {
 };
 
 const deleteScore = async (id) => {
-    const url = login ? `scores/${id}` : `guest/${localStorage.getItem("guest_code")}/scores/${id}`
+    const url = LOGIN ? `scores/${id}` : `guest/${localStorage.getItem("guest_code")}/scores/${id}`
     try {
         if (confirm("削除します")) {
             await api.delete(url);
@@ -399,7 +409,7 @@ const getAccount = async () => {
     try {
         const response = await api.get(`accounts/me`);
         document.getElementById("account_name").innerText = response.account_name;
-        login = true;
+        LOGIN = true;
     } catch (e) {
         console.log(e)
     }
