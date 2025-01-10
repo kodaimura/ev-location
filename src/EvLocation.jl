@@ -1,4 +1,4 @@
-module EvLoc
+module EvLocation
 
 using Genie
 
