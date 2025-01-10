@@ -12,7 +12,7 @@ let GEOCODER;
 let ORIGIN = { lat: 35.68139565951991, lng: 139.76711235533344 };
 let ADDRESS = '';
 
-const initMap = async () => {
+window.addEventListener("load", async () => {
     GEOCODER = new google.maps.Geocoder();
     await getAccount();
     if (!LOGIN && !localStorage.getItem("guest_code")) {
@@ -31,59 +31,48 @@ const initMap = async () => {
     getScores();
 
     resetMap();
-    setupFacilityAdding();
-    setupEvaluateButton();
-    setupAddressInput();
-    
-};
+    document.getElementById("evaluate-button").addEventListener("click", evaluate);
+    document.getElementById("add-facility-button").addEventListener("click", addFacility);
+    document.getElementById("set-origin-button").addEventListener("click", setOriginalAddress);
+});
 
-// 住所入力で地図を更新する処理
-const setupAddressInput = () => {
-    document.getElementById("set-origin-button").addEventListener("click", () => {
-        const address = document.getElementById("address-input").value;
-
-        if (address) {
-            GEOCODER.geocode({ address: address }, (results, status) => {
-                if (status === "OK") {
-                    const newOrigin = results[0].geometry.location;
-                    ORIGIN = newOrigin;
-                    MAP.setCenter(newOrigin);
-                    const originMarker = new AdvancedMarkerElement({
-                        position: newOrigin,
-                        map: MAP,
-                    });
-                    ADDRESS = address;
-                } else {
-                    alert("住所の取得に失敗しました。再試行してください。");
-                }
+const setOriginalAddress = () => {
+    const address = document.getElementById("address-input").value;
+    if (address === "") {
+        alert("住所を入力してください。");
+        return;
+    }
+    GEOCODER.geocode({ address: address }, (results, status) => {
+        if (status === "OK") {
+            const newOrigin = results[0].geometry.location;
+            ORIGIN = newOrigin;
+            MAP.setCenter(newOrigin);
+            const originMarker = new AdvancedMarkerElement({
+                position: newOrigin,
+                map: MAP,
             });
+            ADDRESS = address;
         } else {
-            alert("住所を入力してください。");
+            alert("Google Map API の無料枠の日時上限に達してしまいました。");
         }
     });
-};
+} 
 
-// 目的地追加の処理を別関数として分ける
-const setupFacilityAdding = () => {
-    document.getElementById("add-facility-button").addEventListener("click", () => {
-        const facilityInput = document.querySelector(".facility-input");
-        const facility = facilityInput.value;
-        
-        if (FACILITIES.some(d => d.name === facility)) {
-            alert("施設名が重複しています。");
-            return;
-        }
 
-        if (facility) {
-            facilityInput.value = "";
-            addFacility(facility);
-        } else {
-            alert("施設名を入力してください。");
-        }
-    });
-};
+const addFacility = () => {
+    const facilityInput = document.querySelector(".facility-input");
+    const facility = facilityInput.value;
+    
+    if (FACILITIES.some(d => d.name === facility)) {
+        alert("施設名が重複しています。");
+        return;
+    }
+    if (facility === "") {
+        alert("施設名を入力してください。");
+        return;
+    }
 
-const addFacility = (facility) => {
+    facilityInput.value = "";
     FACILITIES.push({"name": facility, "frequency": 1});
     postFacilities();
     renderFacility(facility, 1);
@@ -126,24 +115,22 @@ const renderFacility = (facility, frequency) => {
     document.getElementById("facility-list").appendChild(li);
 }
 
-const setupEvaluateButton = () => {
-    document.getElementById("evaluate-button").addEventListener("click", async () => {
-        if (FACILITIES.length === 0) {
-            alert("施設を追加してください。");
-            return;
-        }
-        if (document.getElementById("address-input").value == "") {
-            alert("物件を設定してください。");
-            return;
-        }
-        if (document.getElementById("address-input").value != ADDRESS) {
-            alert("物件を設定してください。");
-            return;
-        };
-        await displayClosestRoutesForFacilities();
-        postScore();
-    });
-};
+const evaluate = async () => {
+    if (FACILITIES.length === 0) {
+        alert("施設を追加してください。");
+        return;
+    }
+    if (document.getElementById("address-input").value == "") {
+        alert("物件を設定してください。");
+        return;
+    }
+    if (document.getElementById("address-input").value != ADDRESS) {
+        alert("物件を設定してください。");
+        return;
+    };
+    await displayClosestRoutesForFacilities();
+    postScore();
+}
 
 const displayClosestRoutesForFacilities = async () => {
     resetMap();
@@ -178,7 +165,7 @@ const evaluateLocation = async (service, facility) => {
             if (status === PlacesServiceStatus.OK && results.length > 0) {
                 resolve(results);
             } else {
-                console.error("施設の検索に失敗しました:", status);
+                alert("Google Map API の無料枠の日時上限に達してしまいました。");
                 resolve(null);
             }
         });
@@ -210,6 +197,7 @@ const getClosestPlaceAndRoute = async (places) => {
                 if (status === google.maps.DirectionsStatus.OK) {
                     resolve(response);
                 } else {
+                    alert("Google Map API の無料枠の日時上限に達してしまいました。");
                     reject(`ルートの取得に失敗しました: ${status}`);
                 }
             });
@@ -431,6 +419,3 @@ const generateGuestCode = () => {
     }
     return result;
 }
-
-// 地図をロード
-window.onload = initMap;
