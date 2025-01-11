@@ -1,0 +1,13 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - GENIE_ENV=prod
+    volumes:
+      - .:/app
+    tty: true
+    command: julia -e "using Pkg; Pkg.activate(\".\"); using Genie; Genie.loadapp(); up(host = \"0.0.0.0\", async = false);"
