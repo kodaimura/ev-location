@@ -4,38 +4,48 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Genie :: The highly productive Julia web framework</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap-grid.min.css" rel="stylesheet"
-        crossorigin="anonymous">
+    <title>signup 物件立地評価 ev-location</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/signup.css">
 </head>
 
-<body id="page-top" data-spy="scroll" data-target=".side-menu">
-    <div class="container-fluid">
-        <a href="login">ログイン</a>
-        <div class="row justify-content-center">
-            <h2 class="text-center">アカウント作成</h2>
-            <div class="col-md-6">
-                <div class="text-danger" id="error"></div>
-                <form onsubmit="return false;" id="signup-form">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                        <input type="text" name="account_name" class="form-control" placeholder="ユーザ名">
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/" class="logo-link">ev-location</a>
+            </div>
+            <div class="header-button">
+                <a href="login">ログイン</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="signup-container">
+            <h2 class="signup-title">アカウント作成</h2>
+            <div>
+                <div class="error-message" id="error"></div>
+                <form onsubmit="return false;" id="signup-form" class="signup-form">
+                    <div class="form-group">
+                        <input type="text" name="account_name" class="form-control form-input" placeholder="ユーザ名">
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                        <input type="password" name="account_password" class="form-control" placeholder="パスワード">
+                    <div class="form-group">
+                        <input type="password" name="account_password" class="form-control form-input" placeholder="パスワード">
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                        <input type="password" name="account_password_confirm" class="form-control"
+                    <div class="form-group">
+                        <input type="password" name="account_password_confirm" class="form-control form-input"
                             placeholder="パスワード（再）">
                     </div>
-                    <button class="btn btn-success w-100" id="signup">サインアップ</button>
+                    <button id="signup" class="signup-button">サインアップ</button>
                 </form>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer>
+        Copyright &copy; murakamikodai. 2025. 
+    </footer>
     
     <script type="module" src="/js/signup.js"></script>
 </body>

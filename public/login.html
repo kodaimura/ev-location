@@ -4,33 +4,44 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Genie :: The highly productive Julia web framework</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap-grid.min.css" rel="stylesheet"
-        crossorigin="anonymous">
+    <title>login 物件立地評価 ev-location</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 
-<body id="page-top" data-spy="scroll" data-target=".side-menu">
-    <div class="container-fluid">
-        <a href="signup">サインアップ</a>
-        <div class="row justify-content-center">
-            <h2 class="text-center">ログイン</h2>
-            <div class="col-md-6">
-                <div class="text-danger" id="error"></div>
-                <form onsubmit="return false" id="login-form">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
-                        <input type="text" name="account_name" class="form-control" placeholder="ユーザ名">
+<body>
+    <header>
+        <div class="header-container">
+            <div class="header-logo">
+                <a href="/" class="logo-link">ev-location</a>
+            </div>
+            <div class="header-button">
+                <a href="signup">サインアップ</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="login-container">
+            <h2 class="login-title">ログイン</h2>
+            <div>
+                <div class="error-message" id="error"></div>
+                <form onsubmit="return false" id="login-form" class="login-form">
+                    <div class="form-group">
+                        <input type="text" name="account_name" placeholder="ユーザ名" class="form-input">
                     </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="bi bi-key-fill"></i></span>
-                        <input type="password" name="account_password" class="form-control" placeholder="パスワード">
+                    <div class="form-group">
+                        <input type="password" name="account_password" placeholder="パスワード" class="form-input">
                     </div>
-                    <button class="btn btn-primary w-100" id="login">ログイン</button>
+                    <button id="login" class="login-button">ログイン</button>
                 </form>
             </div>
         </div>
-    </div>
+    </main>
+
+    <footer>
+        Copyright &copy; murakamikodai. 2025. 
+    </footer>
 
     <script type="module" src="/js/login.js"></script>
 </body>
