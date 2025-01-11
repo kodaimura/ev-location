@@ -33,7 +33,7 @@ window.addEventListener("load", async () => {
     resetMap();
     document.getElementById("evaluate-button").addEventListener("click", evaluate);
     document.getElementById("add-facility-button").addEventListener("click", addFacility);
-    document.getElementById("set-origin-button").addEventListener("click", setOriginalAddress);
+    document.getElementById("set-original-address-button").addEventListener("click", setOriginalAddress);
 });
 
 const setOriginalAddress = () => {
