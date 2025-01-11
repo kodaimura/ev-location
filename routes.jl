@@ -83,11 +83,6 @@ route("/api/scores/:id", method="DELETE") do
   return ScoresController.delete(get_context(), params(:id))
 end
 
-#
-#route("/api/facilities", method="POST") do
-#  return FacilitiesController.post(get_context())
-#end
-
 ###################################################################################################
 function redirect_login()
   Genie.Renderer.redirect("login")

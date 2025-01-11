@@ -6,12 +6,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=ev_loc
-      - JWT_SECRET=secret
+      - GENIE_ENV=dev
     depends_on:
       - db
     volumes:
@@ -22,7 +17,7 @@ services:
   db:
     image: postgres:16.1
     environment:
-      POSTGRES_DB: ev_loc
+      POSTGRES_DB: ev_location
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
