@@ -22,6 +22,10 @@ route("/api/login", method="POST") do
   return AccountsController.login(get_context())
 end
 
+route("/api/logout", method="POST") do
+  return AccountsController.logout(get_context())
+end
+
 route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
 end

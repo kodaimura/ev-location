@@ -31,6 +31,7 @@ window.addEventListener("load", async () => {
     getScores();
 
     resetMap();
+    document.getElementById("login-button").addEventListener("click", () => LOGIN ? logout() : login());
     document.getElementById("evaluate-button").addEventListener("click", evaluate);
     document.getElementById("add-facility-button").addEventListener("click", addFacility);
     document.getElementById("set-original-address-button").addEventListener("click", setOriginalAddress);
@@ -273,12 +274,16 @@ const createTimeIcon = (duration) => {
 
 const getFacilities = async () => {
     const url = LOGIN ? 'facilities' : `guest/${localStorage.getItem("guest_code")}/facilities`;
-    const response = await api.get(url);
-    if (response.facilities) {
-        FACILITIES = JSON.parse(response.facilities.facilities_data);
-        for (let f of FACILITIES) {
-            renderFacility(f.name, f.frequency);
+    try {
+        const response = await api.get(url);
+        if (response.facilities) {
+            FACILITIES = JSON.parse(response.facilities.facilities_data);
+            for (let f of FACILITIES) {
+                renderFacility(f.name, f.frequency);
+            }
         }
+    } catch (e) {
+        console.log(e)
     }
 };
 
@@ -401,6 +406,7 @@ const getAccount = async () => {
     try {
         const response = await api.get(`accounts/me`);
         document.getElementById("account_name").innerText = response.account_name;
+        document.getElementById("login-button").textContent = "ログアウト";
         LOGIN = true;
     } catch (e) {
         console.log(e)
@@ -412,6 +418,15 @@ const postHandover = async () => {
         guest_code: localStorage.getItem("guest_code")
     };
     await api.post('handover', body);
+}
+
+const login = () => {
+    window.location.replace("login");
+}
+
+const logout = async () => {
+    await api.post(`logout`, {});
+    window.location.reload();
 }
 
 const generateGuestCode = () => {
