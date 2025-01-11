@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ev-location</title>
+  <title>物件立地評価 ev-location</title>
   <link rel="stylesheet" href="/css/index.css">
   <script>(g => { var h, a, k, p = "The Google Maps JavaScript API", c = "google", l = "importLibrary", q = "__ib__", m = document, b = window; b = b[c] || (b[c] = {}); var d = b.maps || (b.maps = {}), r = new Set, e = new URLSearchParams, u = () => h || (h = new Promise(async (f, n) => { await (a = m.createElement("script")); e.set("libraries", [...r] + ""); for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]); e.set("callback", c + ".maps." + q); a.src = `https://maps.${c}apis.com/maps/api/js?` + e; d[q] = f; a.onerror = () => h = n(Error(p + " could not load.")); a.nonce = m.querySelector("script[nonce]")?.nonce || ""; m.head.append(a) })); d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n)) })
       ({ key: "AIzaSyDzM1I0GQ4j-MCwN_v5E1kJ5IlFfWtRw1U", v: "weekly" });</script>
@@ -25,23 +25,27 @@
     </div>
   </header>
 
-  <div class="container-fluid">
-    <div class="row hero-header" id="home">
+  <main class="container-fluid">
+    <div style="font-size: 0.9rem;">
+      ※GoogleMapAPI の無料の範囲内で実装しているため、月毎に利用者全員での利用数の上限があります。
+    </div>
+    <div>
       <div>
+        <h1>物件立地評価</h1>
         <p>
-          ユーザがよく利用する施設（駅、スーパー、コンビニなど）へのアクセスを基準に、賃貸物件の立地を評価するためのスコアを計算します。
-          より多くの施設が近いほど、また、利用頻度の高い施設が特に近い場合に、スコアが高くなります。このスコアを使って複数の物件を比較し、最も便利な立地の物件を見つけることができます。
+          　ユーザがよく利用する施設（駅、スーパー、コンビニなど）へのアクセスを基準に、賃貸物件の立地を評価するためのスコアを計算します。<br>
+          　より多くの施設が近いほど、また、利用頻度の高い施設が特に近い場合に、スコアが高くなります。複数の物件を比較し、最も便利な立地の物件を見つけてください。
         </p>
       
         <h3>スコア計算式</h3>
         <div class="formula">
           <p>
-            $$\text{物件スコア} = \frac{\sum_{i=1}^{n} \left( \max\left( 0, \frac{T_{\text{max}} - T_i}{T_{\text{max}}} \times 100 \times P_i \right) \right)}{\sum_{i=1}^{n} \left( P_i \times 100 \right)} \times 100$$
+            $$\text{物件スコア} = \frac{\sum_{i=1}^{n} \left( \max\left( 0, \frac{T_{\text{max}} - T_i}{T_{\text{max}}} \times P_i \right) \right)}{\sum_{i=1}^{n} P_i} \times 100$$
           </p>
         </div>
       
         <h3>記号の説明</h3>
-        <ul>
+        <ul style="margin-left: 30px;">
           <li>
             \( T_{\text{max}} \): &nbsp;&nbsp;1800秒（=30分 徒歩時間の最大基準）
           </li>
@@ -59,36 +63,38 @@
           </li>
         </ul>
       
-        <h3>計算の流れ</h3>
-        <ol>
-          <li>各施設について、徒歩時間からスコアを計算し、優先度で重み付けします。</li>
-          <li>全施設のスコアを合計します。</li>
-          <li>理論上の最大スコア（全施設が徒歩0分の場合のスコア）で正規化します。</li>
-          <li>最終的なスコアを100点満点で表示します。</li>
+        <h3>計算式の説明</h3>
+        <ol style="margin-left: 30px;">
+          <li>各施設について、徒歩時間からスコアを計算し、利用頻度で重み付け</li>
+          <li>全施設のスコアを合計</li>
+          <li>理論上の最大スコア（全施設が徒歩0分の場合のスコア）で正規化</li>
+          <li>最終的なスコアを100点満点で表示</li>
         </ol>
       </div>
-      <div>
-        <div class="input-group">
-          <input type="text" class="facility-input" placeholder="例: 錦糸町駅、まいばすけっと（1つずつ追加）" />
-          <button id="add-facility-button">施設追加</button>
-        </div>
-        <div>
-          <ul id="facility-list"></ul>
-          <div>
-            <span style="color: red;">*</span>利用頻度の多い施設はタグをクリックして色を変える<br>
-            <span style="color: red;">*</span>3段階で設定可能 （<span class="frequency-1">少ない</span> <span class="frequency-2">そこそこ</span> <span class="frequency-3">多い</span>）
-          </div>
-        </div>
-        <div style="width: 100%; height: 30px;"></div>
-        <div class="input-group">
-          <input type="text" id="address-input" placeholder="〇〇県〇〇市〇丁目〇〇〇">
-          <button id="set-origin-button">物件設定</button>
-        </div>
 
-        <div id="map"></div>
-
-        <button id="evaluate-button">評価する</button>
+      <h3>施設追加</h3>
+      <div class="input-group">
+        <input type="text" class="facility-input" placeholder="例: 錦糸町駅、まいばすけっと（1つずつ追加）" />
+        <button id="add-facility-button">施設追加</button>
       </div>
+      <div>
+        <ul id="facility-list"></ul>
+        <div>
+          <span style="color: red;">※</span>利用頻度の多い施設はタグをクリックして色を変える<br>
+          <span style="color: red;">※</span>3段階で設定可能 （<span class="frequency-1">少ない</span> <span class="frequency-2">そこそこ</span> <span class="frequency-3">多い</span>）
+        </div>
+      </div>
+
+      <h3>物件設定</h3>
+      <div class="input-group">
+        <input type="text" id="address-input" placeholder="〇〇県〇〇市〇丁目〇〇〇">
+        <button id="set-origin-button">物件設定</button>
+      </div>
+
+      <div id="map"></div>
+      <button id="evaluate-button">評価する</button>
+
+      <h3>スコア履歴</h3>
       <table id="score-table">
         <thead>
           <tr>
@@ -102,7 +108,7 @@
         <tbody></tbody>
       </table>
     </div>
-  </div>
+  </main>
   <footer>
     Copyright &copy; murakamikodai. 2025. 
   </footer>

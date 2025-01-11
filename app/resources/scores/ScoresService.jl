@@ -102,8 +102,8 @@ function calc_score(facilities_data_2::String, tmax::Int64)::Float64
     for f in facilities
         p = Int64(f["frequency"])
         t = Int64(f["time"])
-        total += max(0, ((tmax - t) / tmax) * 100 * p)
-        maximum += 100 * p
+        total += max(0, ((tmax - t) / tmax) * p)
+        maximum += p
     end
     return round((total / maximum) * 100, digits=1)
 end

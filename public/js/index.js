@@ -360,6 +360,7 @@ const postScore = async () => {
         const addressCell = document.createElement('td');
         addressCell.textContent = ADDRESS;
         const scoreCell = document.createElement('td');
+        scoreCell.style.textAlign = 'center';
         scoreCell.textContent = response.score;
         const facilitiesCell = document.createElement('td');
         const facilitiesList = document.createElement('ul');

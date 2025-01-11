@@ -1,3 +1,5 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
     min-height: 100vh;
     position: relative;
@@ -7,7 +9,36 @@ body {
     font-family: "Noto Serif JP", serif !important;
 }
 
-footer{
+h1 {
+    font-size: 1.5rem;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+h2, h3 {
+    margin-top: 30px;
+    margin-bottom: 10px;
+}
+
+main {
+    padding: 10px 30px;
+}
+
+@media screen and (min-width: 768px) {
+    main {
+        font-size: 1.05rem;
+        padding: 10px 80px;
+    }
+}
+
+@media screen and (min-width: 1200px) {
+    main {
+        font-size: 1.1rem;
+        padding: 10px 150px;
+    }
+}
+
+footer {
     padding: 10px 10px;
     position: absolute;
     bottom: 0;
@@ -15,6 +46,7 @@ footer{
 }
 
 header {
+    background-color: #fafafa;
     border-bottom: 2px solid #e0e0e0;
     padding: 15px 20px;
 }
@@ -23,7 +55,6 @@ header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    max-width: 1200px;
     margin: 0 auto;
 }
   
@@ -62,30 +93,9 @@ header {
     color: #ffffff;
 }
 
-.hero-header {
-    padding: 40px 30px;
-}
-
-h1, h2 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: #4a90e2;
-}
-
-a {
-    color: #4a90e2;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
 .input-group {
     display: flex;
 }
-
 
 .input-group input {
     width: 80%;
@@ -113,13 +123,14 @@ a:hover {
 #facility-list {
     list-style-type: none;
     padding-left: 0;
+    margin-top: 10px;
 }
 
 #facility-list .facility-tag {
-    padding: 8px 12px;
+    padding: 6px 12px;
     margin-right: 10px;
     margin-bottom: 10px;
-    border-radius: 20px;
+    border-radius: 25px;
     font-size: 0.9rem;
     display: inline-flex;
     justify-content: center;
@@ -180,7 +191,6 @@ a:hover {
     border-collapse: collapse;
     width: 100%;
     text-align: left;
-    margin-top: 30px;
 }
 
 #score-table th {
