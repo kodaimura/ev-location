@@ -12,7 +12,7 @@ let GEOCODER;
 let ORIGIN = { lat: 35.68139565951991, lng: 139.76711235533344 };
 let ADDRESS = '';
 
-window.addEventListener("load", async () => {
+const init = async () => {
     GEOCODER = new google.maps.Geocoder();
     await getAccount();
     if (!LOGIN && !localStorage.getItem("guest_code")) {
@@ -35,7 +35,7 @@ window.addEventListener("load", async () => {
     document.getElementById("evaluate-button").addEventListener("click", evaluate);
     document.getElementById("add-facility-button").addEventListener("click", addFacility);
     document.getElementById("set-original-address-button").addEventListener("click", setOriginalAddress);
-});
+};
 
 const setOriginalAddress = () => {
     const address = document.getElementById("address-input").value;
@@ -438,3 +438,5 @@ const generateGuestCode = () => {
     }
     return result;
 }
+
+window.load = init();
