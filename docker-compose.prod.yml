@@ -4,10 +4,12 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "3800:3800"
     environment:
       - GENIE_ENV=prod
     volumes:
       - .:/app
+      - ./linux/logrotate.d/app:/etc/logrotate.d/app
+    working_dir: /app
     tty: true
     command: julia -e "using Pkg; Pkg.activate(\".\"); using Genie; Genie.loadapp(); up(host = \"0.0.0.0\", async = false);"
