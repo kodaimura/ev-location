@@ -1,4 +1,4 @@
-/usr/src/app/log/app.log
+/app/log/app.log
 {
     daily
     rotate 60
