@@ -1,28 +1,37 @@
-DOCKER_COMPOSE_DEV = docker compose
-DOCKER_COMPOSE_PROD = docker compose -f docker-compose.prod.yml
+DOCKER_COMPOSE = docker compose
+ENV ?= dev
+DOCKER_COMPOSE_FILE = $(if $(filter prod,$(ENV)),-f docker-compose.prod.yml,)
+DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE) $(DOCKER_COMPOSE_FILE)
 
-dev:
-	$(DOCKER_COMPOSE_DEV) up -d
+up:
+	$(DOCKER_COMPOSE_CMD) up -d
 
-prod:
-	$(DOCKER_COMPOSE_PROD) up -d
-
-dev-build:
-	$(DOCKER_COMPOSE_DEV) build --no-cache
-
-prod-build:
-	$(DOCKER_COMPOSE_PROD) build --no-cache
+build:
+	$(DOCKER_COMPOSE_CMD) build --no-cache
 
 down:
-	$(DOCKER_COMPOSE_DEV) down
-	$(DOCKER_COMPOSE_PROD) down
+	$(DOCKER_COMPOSE_CMD) down
 
 stop:
-	$(DOCKER_COMPOSE_DEV) stop
-	$(DOCKER_COMPOSE_PROD) stop
+	$(DOCKER_COMPOSE_CMD) stop
 
 in:
-	$(DOCKER_COMPOSE_DEV) exec app bash || $(DOCKER_COMPOSE_PROD) exec app bash
+	$(DOCKER_COMPOSE_CMD) exec app bash
 
-logapp:
-	docker compose logs -f app
+log:
+	$(DOCKER_COMPOSE_CMD) logs -f
+
+ps:
+	$(DOCKER_COMPOSE_CMD) ps
+
+help:
+	@echo "Usage: make [target] [ENV=dev|prod]"
+	@echo ""
+	@echo "Targets:"
+	@echo "  up        Start containers in the specified environment (default: dev)"
+	@echo "  build     Build containers without cache"
+	@echo "  down      Stop and remove containers, networks, and volumes"
+	@echo "  stop      Stop containers"
+	@echo "  in        Access app container via bash"
+	@echo "  log       Show logs for the app container"
+	@echo "  ps        Show status for the app container"
