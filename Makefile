@@ -3,6 +3,8 @@ ENV ?= dev
 DOCKER_COMPOSE_FILE = $(if $(filter prod,$(ENV)),-f docker-compose.prod.yml,)
 DOCKER_COMPOSE_CMD = $(DOCKER_COMPOSE) $(DOCKER_COMPOSE_FILE)
 
+.PHONY: up build down stop in log ps help
+
 up:
 	$(DOCKER_COMPOSE_CMD) up -d
 
