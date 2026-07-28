@@ -10,7 +10,7 @@ dev:
   config:
 
 prod:
-  adapter:
+  adapter: PostgreSQL
   database:
   host:
   username:
