@@ -7,6 +7,7 @@ services:
       - "127.0.0.1:3800:3800"
     environment:
       - GENIE_ENV=prod
+      - JWT_SECRET=${JWT_SECRET:-}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
       - GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID:-}
       - DB_NAME=${DB_NAME:-}

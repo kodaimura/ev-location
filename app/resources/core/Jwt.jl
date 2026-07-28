@@ -53,7 +53,7 @@ function verify(token::AbstractString)::Bool
             return false
         end
 
-        secret_key = Vector{UInt8}(ENV["JWT_SECRET"])
+        secret_key = Vector{UInt8}(codeunits(ENV["JWT_SECRET"]))
         expected_signature = hmac_sha256(secret_key, "$header_encoded.$payload_encoded")
         expected_signature_encoded = base64url_encode(expected_signature)
         if signature_encoded != expected_signature_encoded

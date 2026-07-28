@@ -8,6 +8,7 @@ dev:
   password: postgres
   port: 5432
   config:
+    log_queries: false
 
 prod:
   adapter: PostgreSQL
@@ -17,6 +18,7 @@ prod:
   password:
   port:
   config:
+    log_queries: false
 
 test:
   adapter:

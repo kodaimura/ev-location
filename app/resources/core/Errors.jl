@@ -37,8 +37,8 @@ end
 function json_error_response(e::Exception, request::HTTP.Request)
     status_code = get_status_code(e)
     message = get_error_message(e)
-    if e isa UnexpectedError
-        @error "request: $request"
+    if !(e isa ExpectedError)
+        @error "Unhandled request error" exception=(e, catch_backtrace()) request=request
     end
     return RendererJson.json(Dict("error" => message); status=status_code)
 end

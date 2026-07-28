@@ -4,10 +4,22 @@ include("AccountsService.jl")
 
 import Genie.Renderer.Json as RendererJson
 import Genie.Requests as Requests
+import HTTP
 
 using .AccountsService
 
 export signup, login, logout
+
+function auth_cookie_header(value::String; expires::Union{String, Nothing}=nothing)
+    parts = ["token=$value", "Path=/", "HttpOnly", "SameSite=Lax"]
+    if get(ENV, "GENIE_ENV", "dev") == "prod"
+        push!(parts, "Secure")
+    end
+    if !isnothing(expires)
+        push!(parts, "Expires=$expires")
+    end
+    return join(parts, "; ")
+end
 
 function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     missing_keys = [key for key in keys if !haskey(request, key)]
@@ -42,8 +54,8 @@ function login(ctx::Dict{String, Any})
             throw(UnauthorizedError())
         end
         token = AccountsService.create_jwt(account)
-        cookie_header = "token=$token; Path=/; HttpOnly; Secure; SameSite=Lax"
-        return RendererJson.json(Dict("token" => token); status=200, headers=Dict("Set-Cookie" => cookie_header))
+        cookie_header = auth_cookie_header(token)
+        return RendererJson.json(Dict("token" => token); status=200, headers=HTTP.Headers(["Set-Cookie" => cookie_header]))
     catch e
         return json_error_response(e, Requests.request())
     end
@@ -51,8 +63,8 @@ end
 
 function logout(ctx::Dict{String, Any})
     try
-        cookie_header = "token=; Path=/; HttpOnly; Secure; SameSite=Lax; Expires=Thu, 01 Jan 1970 00:00:00 GMT"
-        return RendererJson.json(Dict(); status=200, headers=Dict("Set-Cookie" => cookie_header))
+        cookie_header = auth_cookie_header("", expires="Thu, 01 Jan 1970 00:00:00 GMT")
+        return RendererJson.json(Dict(); status=200, headers=HTTP.Headers(["Set-Cookie" => cookie_header]))
     catch e
         return json_error_response(e, Requests.request())
     end
