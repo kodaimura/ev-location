@@ -1,13 +1,17 @@
 using SearchLight
 using Genie
+using JSON3
+using StructTypes
 
-function Genie.Renderer.Json.JSON3.StructTypes.StructType(::Type{T}) where {T<:SearchLight.AbstractModel}
-  Genie.Renderer.Json.JSON3.StructTypes.Struct()
+function StructTypes.StructType(::Type{T}) where {T<:SearchLight.AbstractModel}
+  StructTypes.Struct()
 end
 
-function Genie.Renderer.Json.JSON3.StructTypes.StructType(::Type{SearchLight.DbId})
-  Genie.Renderer.Json.JSON3.StructTypes.Struct()
+function StructTypes.StructType(::Type{SearchLight.DbId})
+  StructTypes.Struct()
 end
 
-SearchLight.Configuration.load(context = @__MODULE__)
-SearchLight.connect()
+if ENV["GENIE_ENV"] != "test"
+  SearchLight.Configuration.load(context = @__MODULE__)
+  SearchLight.connect()
+end

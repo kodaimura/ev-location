@@ -39,15 +39,11 @@ end
 
 function delete(account_id::Int32, id::AbstractString)
     try
-        #SearchLightの不具合 deleted_atがNothing型として扱われてしまう
-        #score = SearchLight.findone(Score, account_id = account_id, id = id)
-        #if score !== nothing
-        #    score.deleted_at = now()
-        #    SearchLight.save!(score)
-        #end
-        where_clause = string(SQLWhereExpression("account_id = ? AND id = ?", account_id, id))
-        where_clause = replace(where_clause, r"^AND\s+" => "")
-        SearchLight.query("UPDATE scores SET deleted_at = '$(Dates.format(now(), "yyyy-mm-dd HH:MM:SS.sss"))' where $where_clause")
+        score = SearchLight.findone(Score, account_id = account_id, id = id)
+        if score !== nothing
+            score.deleted_at = now()
+            SearchLight.save!(score)
+        end
     catch e
         handle_exception(e)
     end
@@ -81,15 +77,11 @@ end
 
 function guest_delete(guest_code::AbstractString, id::AbstractString)
     try
-        #SearchLightの不具合 deleted_atがNothing型として扱われてしまう
-        #score = SearchLight.findone(Score, guest_code = guest_code, id = id)
-        #if score !== nothing
-        #    score.deleted_at = now()
-        #    SearchLight.save!(score)
-        #end
-        where_clause = string(SQLWhereExpression("guest_code = ? AND id = ?", guest_code, id))
-        where_clause = replace(where_clause, r"^AND\s+" => "")
-        SearchLight.query("UPDATE scores SET deleted_at = '$(Dates.format(now(), "yyyy-mm-dd HH:MM:SS.sss"))' where $where_clause")
+        score = SearchLight.findone(Score, guest_code = guest_code, id = id)
+        if score !== nothing
+            score.deleted_at = now()
+            SearchLight.save!(score)
+        end
     catch e
         handle_exception(e)
     end

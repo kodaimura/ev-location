@@ -13,12 +13,18 @@ import .Scores: Score
 
 function handover(guest_code::AbstractString, account_id::Int32)
     try
-        where_clause = string(SQLWhereExpression("guest_code = ?", guest_code))
-        where_clause = replace(where_clause, r"^AND\s+" => "")
-        SearchLight.query("UPDATE scores SET account_id = $account_id where $where_clause")
+        scores = SearchLight.find(Score, guest_code = guest_code)
+        for score in scores
+            score.account_id = account_id
+            SearchLight.save!(score)
+        end
 
         if isnothing(SearchLight.findone(Facility, account_id=account_id))
-            SearchLight.query("UPDATE facilities SET account_id = $account_id where $where_clause")
+            facilities = SearchLight.find(Facility, guest_code = guest_code)
+            for facility in facilities
+                facility.account_id = account_id
+                SearchLight.save!(facility)
+            end
         end
     catch e
         handle_exception(e)

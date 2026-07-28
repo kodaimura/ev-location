@@ -31,6 +31,7 @@ route("/api/signup", method="POST") do
 end
 
 route("/api/handover", method="POST") do
+  is_authorized() || return json_unauthorized()
   return CommonsController.handover(get_context())
 end
 

@@ -1,4 +1,4 @@
-using Test, SearchLight, Main.UserApp, Main.UserApp.Tasks
+using Test, SearchLight, Main.UserApp
 
 @testset "Task unit tests" begin
 

@@ -431,10 +431,15 @@ const logout = async () => {
 
 const generateGuestCode = () => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const bytes = new Uint8Array(32);
     let result = '';
-    for (let i = 0; i < 11; i++) {
-        const randomIndex = Math.floor(Math.random() * chars.length);
-        result += chars[randomIndex];
+    while (result.length < 16) {
+        crypto.getRandomValues(bytes);
+        for (const byte of bytes) {
+            if (byte >= 248) continue;
+            result += chars[byte % chars.length];
+            if (result.length === 16) break;
+        }
     }
     return result;
 }

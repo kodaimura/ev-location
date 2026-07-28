@@ -18,10 +18,13 @@ cd(@__DIR__)
 Pkg.activate(".")
 
 # !!! Main.UserApp is configured as an alias for Main.EvLocation and you might encounter it in some tests
-using Main.EvLocation, Test, TestSetExtensions, Logging
+using Main.EvLocation, Test, Logging
 
 Logging.global_logger(NullLogger())
 
-@testset ExtendedTestSet "EvLocation tests" begin
-  @includetests ARGS
+@testset "EvLocation tests" begin
+  test_files = isempty(ARGS) ? filter(endswith("_test.jl"), readdir(@__DIR__)) : ARGS
+  for test_file in test_files
+    include(joinpath(@__DIR__, test_file))
+  end
 end
