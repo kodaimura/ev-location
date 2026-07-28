@@ -17,9 +17,20 @@
       <div class="header-logo">
         <a href="#" class="logo-link">立地スコア</a>
       </div>
-      <div id="account_name" class="header-account"></div>
-      <div class="header-button">
-        <button id="login-button">ログイン</button>
+      <div class="header-actions">
+        <div id="account_name" class="header-account"></div>
+        <div class="header-button" id="login-action">
+          <button id="login-button">ログイン</button>
+        </div>
+        <div class="account-menu" id="account-menu" hidden>
+          <button id="account-menu-button" class="account-menu-button" aria-label="アカウントメニュー" aria-haspopup="true" aria-expanded="false">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+          </button>
+          <div class="account-menu-list" id="account-menu-list">
+            <a href="/password">パスワード変更</a>
+            <button id="logout-button">ログアウト</button>
+          </div>
+        </div>
       </div>
     </div>
   </header>

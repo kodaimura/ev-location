@@ -18,6 +18,10 @@ route("/signup") do
   return serve_static_file("signup.html")
 end
 
+route("/password") do
+  return serve_static_file("password.html")
+end
+
 route("/api/login", method="POST") do
   return AccountsController.login(get_context())
 end
@@ -32,6 +36,11 @@ end
 
 route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
+end
+
+route("/api/password", method="POST") do
+  is_authorized() || return json_unauthorized()
+  return AccountsController.change_password(get_context())
 end
 
 route("/api/handover", method="POST") do

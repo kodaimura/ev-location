@@ -1,5 +1,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+[hidden] {
+    display: none !important;
+}
+
 body {
     min-height: 100vh;
     position: relative;
@@ -49,6 +53,13 @@ header {
 .header-logo .logo-link:hover {
     text-decoration: underline;
 }
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: auto;
+}
   
 .header-button a,
 .header-button button {
@@ -57,11 +68,11 @@ header {
     font-size: 0.92rem;
     font-weight: bold;
     text-decoration: none;
-    padding: 5px 12px;
+    padding: 8px 13px;
     border: 1px solid #1469aa;
     border-radius: 6px;
     cursor: pointer;
-    line-height: 1.35;
+    line-height: 1.25;
     transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
   
@@ -72,8 +83,79 @@ header {
     box-shadow: 0 3px 10px rgba(20, 105, 170, 0.18);
 }
 
+.account-menu {
+    position: relative;
+}
+
+.account-menu-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    color: #1469aa;
+    background-color: #ffffff;
+    font-size: 1rem;
+    padding: 0;
+    border: 1px solid #1469aa;
+    border-radius: 6px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.account-menu-button:hover,
+.account-menu.is-open .account-menu-button {
+    background-color: #1469aa;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(20, 105, 170, 0.18);
+}
+
+.account-menu-list {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    z-index: 20;
+    min-width: 164px;
+    overflow: hidden;
+    background-color: #ffffff;
+    border: 1px solid #d9e2ec;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(20, 35, 55, 0.14);
+}
+
+.account-menu.is-open .account-menu-list {
+    display: block;
+}
+
+.account-menu-list a,
+.account-menu-list button {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    color: #25313f;
+    background: #ffffff;
+    border: 0;
+    font: inherit;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.account-menu-list a:hover,
+.account-menu-list button:hover {
+    background-color: #eef4fa;
+    color: #1469aa;
+}
+
 .header-button a:focus-visible,
 .header-button button:focus-visible,
+.account-menu-button:focus-visible,
+.account-menu-list a:focus-visible,
+.account-menu-list button:focus-visible,
 button:focus-visible,
 input:focus-visible {
     outline: 3px solid rgba(20, 105, 170, 0.25);
@@ -96,8 +178,18 @@ input:focus-visible {
 
     .header-button a,
     .header-button button {
-        padding: 5px 10px;
+        padding: 7px 11px;
         font-size: 0.86rem;
         white-space: nowrap;
+    }
+
+    .header-actions {
+        gap: 8px;
+    }
+
+    .account-menu-button {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
     }
 }

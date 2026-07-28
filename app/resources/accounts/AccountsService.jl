@@ -54,6 +54,20 @@ function login(account_name::String, account_password::String)::Account
     end
 end
 
+function change_password(account_id::Int32, current_password::String, new_password::String)
+    try
+        account = SearchLight.findone(Account, id = account_id)
+        if isnothing(account) || !verify_password(current_password, account.account_password)
+            throw(UnauthorizedError())
+        end
+
+        account.account_password = hash_password(new_password)
+        SearchLight.save!(account)
+    catch e
+        handle_exception(e)
+    end
+end
+
 function create_jwt(account::Account)::String
     return create_refresh_token(account)
 end

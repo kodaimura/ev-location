@@ -2,6 +2,7 @@ using SearchLight
 using Genie
 using JSON3
 using StructTypes
+using Logging
 
 function StructTypes.StructType(::Type{T}) where {T<:SearchLight.AbstractModel}
   StructTypes.Struct()
@@ -28,8 +29,28 @@ function override_db_config_from_env!()
   end
 end
 
+function disable_searchlight_query_logging!()
+  @eval begin
+    function SearchLight.query(
+      sql::String,
+      conn::SearchLightPostgreSQL.DatabaseHandle = SearchLight.connection()
+    )::SearchLightPostgreSQL.DataFrames.DataFrame
+      result = SearchLightPostgreSQL.LibPQ.execute(conn, sql)
+
+      if SearchLightPostgreSQL.LibPQ.error_message(result) != ""
+        throw(SearchLight.Exceptions.DatabaseAdapterException("$(string(SearchLightPostgreSQL.LibPQ)) error: $(SearchLightPostgreSQL.LibPQ.errstring(result)) [$(SearchLightPostgreSQL.LibPQ.errcode(result))]"))
+      end
+
+      result |> SearchLightPostgreSQL.DataFrames.DataFrame
+    end
+  end
+end
+
 if ENV["GENIE_ENV"] != "test"
   SearchLight.Configuration.load(context = @__MODULE__)
   override_db_config_from_env!()
+  SearchLight.config.log_queries = false
+  SearchLight.config.log_level = Logging.Warn
+  disable_searchlight_query_logging!()
   SearchLight.connect()
 end

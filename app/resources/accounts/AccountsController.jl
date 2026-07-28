@@ -10,7 +10,7 @@ import SearchLight
 
 using .AccountsService
 
-export signup, login, refresh, logout
+export signup, login, refresh, change_password, logout
 
 const REFRESH_COOKIE_NAME = "refresh_token"
 const LEGACY_COOKIE_NAME = "token"
@@ -103,14 +103,24 @@ function refresh(ctx::Dict{String, Any})
     end
 end
 
+function change_password(ctx::Dict{String, Any})
+    request = Requests.jsonpayload()
+    try
+        validate_request_keys(request, ["current_password", "new_password"])
+        account_id = Int32(ctx["payload"]["id"])
+        current_password = request["current_password"]
+        new_password = request["new_password"]
+
+        AccountsService.change_password(account_id, current_password, new_password)
+        return RendererJson.json(Dict(); status=200, headers=expired_auth_cookie_headers())
+    catch e
+        return json_error_response(e, Requests.request())
+    end
+end
+
 function logout(ctx::Dict{String, Any})
     try
-        expired_at = "Thu, 01 Jan 1970 00:00:00 GMT"
-        headers = HTTP.Headers([
-            "Set-Cookie" => auth_cookie_header("", name=REFRESH_COOKIE_NAME, max_age=0, expires=expired_at),
-            "Set-Cookie" => auth_cookie_header("", name=LEGACY_COOKIE_NAME, max_age=0, expires=expired_at),
-        ])
-        return RendererJson.json(Dict(); status=200, headers=headers)
+        return RendererJson.json(Dict(); status=200, headers=expired_auth_cookie_headers())
     catch e
         return json_error_response(e, Requests.request())
     end
@@ -132,6 +142,14 @@ function request_cookie_value(name::String)::Union{String, Nothing}
         end
     end
     return nothing
+end
+
+function expired_auth_cookie_headers()::HTTP.Headers
+    expired_at = "Thu, 01 Jan 1970 00:00:00 GMT"
+    return HTTP.Headers([
+        "Set-Cookie" => auth_cookie_header("", name=REFRESH_COOKIE_NAME, max_age=0, expires=expired_at),
+        "Set-Cookie" => auth_cookie_header("", name=LEGACY_COOKIE_NAME, max_age=0, expires=expired_at),
+    ])
 end
 
 end

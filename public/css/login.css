@@ -36,6 +36,17 @@ main {
     margin-bottom: 10px;
 }
 
+.success-message {
+    color: #218838;
+    font-size: 14px;
+    margin-bottom: 0;
+    min-height: 0;
+}
+
+.success-message:not(:empty) {
+    margin-bottom: 10px;
+}
+
 .form-group {
     margin-bottom: 12px;
     text-align: left;

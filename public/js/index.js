@@ -35,7 +35,10 @@ const init = async () => {
     getFacilities();
     getScores();
 
-    document.getElementById("login-button").addEventListener("click", () => LOGIN ? logout() : login());
+    document.getElementById("login-button").addEventListener("click", login);
+    document.getElementById("account-menu-button").addEventListener("click", toggleAccountMenu);
+    document.getElementById("logout-button").addEventListener("click", logout);
+    document.addEventListener("click", closeAccountMenuOnOutsideClick);
     document.getElementById("evaluate-button").addEventListener("click", evaluate);
     document.getElementById("add-facility-button").addEventListener("click", addFacility);
     document.getElementById("set-original-address-button").addEventListener("click", setOriginalAddress);
@@ -568,7 +571,8 @@ const getAccount = async () => {
     try {
         const response = await api.get(`accounts/me`);
         document.getElementById("account_name").innerText = response.account_name;
-        document.getElementById("login-button").textContent = "ログアウト";
+        document.getElementById("login-action").hidden = true;
+        document.getElementById("account-menu").hidden = false;
         LOGIN = true;
     } catch (e) {
         console.log(e)
@@ -584,6 +588,23 @@ const postHandover = async () => {
 
 const login = () => {
     window.location.replace("login");
+}
+
+const toggleAccountMenu = (event) => {
+    event.stopPropagation();
+    const menu = document.getElementById("account-menu");
+    const button = document.getElementById("account-menu-button");
+    const isOpen = menu.classList.toggle("is-open");
+    button.setAttribute("aria-expanded", String(isOpen));
+}
+
+const closeAccountMenuOnOutsideClick = (event) => {
+    const menu = document.getElementById("account-menu");
+    if (menu.hidden || menu.contains(event.target)) {
+        return;
+    }
+    menu.classList.remove("is-open");
+    document.getElementById("account-menu-button").setAttribute("aria-expanded", "false");
 }
 
 const logout = async () => {
