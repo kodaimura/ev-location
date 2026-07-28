@@ -19,6 +19,8 @@ const PASSWORD_HASH_ALGORITHM = "pbkdf2_sha256"
 const PASSWORD_HASH_ITERATIONS = 210_000
 const PASSWORD_SALT_BYTES = 16
 const PASSWORD_HASH_BYTES = 32
+const ACCESS_TOKEN_TTL_MINUTES = 15
+const REFRESH_TOKEN_TTL_DAYS = 30
 
 function signup(account_name::String, account_password::String)
     try
@@ -53,10 +55,25 @@ function login(account_name::String, account_password::String)::Account
 end
 
 function create_jwt(account::Account)::String
+    return create_refresh_token(account)
+end
+
+function create_access_token(account::Account)::String
     payload = Dict(
         "id" => account.id.value, 
         "account_name" => account.account_name, 
-        "exp" => string(Dates.now() + Dates.Month(3))
+        "token_type" => "access",
+        "exp" => string(Dates.now() + Dates.Minute(ACCESS_TOKEN_TTL_MINUTES))
+    )
+    return Jwt.create(payload)
+end
+
+function create_refresh_token(account::Account)::String
+    payload = Dict(
+        "id" => account.id.value,
+        "account_name" => account.account_name,
+        "token_type" => "refresh",
+        "exp" => string(Dates.now() + Dates.Day(REFRESH_TOKEN_TTL_DAYS))
     )
     return Jwt.create(payload)
 end

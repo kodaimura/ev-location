@@ -26,6 +26,10 @@ route("/api/logout", method="POST") do
   return AccountsController.logout(get_context())
 end
 
+route("/api/refresh", method="POST") do
+  return AccountsController.refresh(get_context())
+end
+
 route("/api/signup", method="POST") do
   return AccountsController.signup(get_context())
 end
@@ -102,27 +106,37 @@ function json_unauthorized()
 end
 
 function get_context()::Dict{String, Any}
-  cookie = Genie.Cookies.getcookies(Genie.Requests.request())
-  token = get_cookie_value(cookie, "token")
   ctx = Dict{String, Any}()
+  token = get_bearer_token()
   if !isnothing(token)
-    ctx["payload"] = Jwt.decode_payload(token)
+    payload = Jwt.verified_payload(token; token_type="access")
+    if !isnothing(payload)
+      ctx["payload"] = payload
+    end
   end
   return ctx
 end
 
 function is_authorized()::Bool
-  cookie = Genie.Cookies.getcookies(Genie.Requests.request())
-  token = get_cookie_value(cookie, "token")
+  token = get_bearer_token()
   if isnothing(token)
     return false
   end
 
   try
-    return Jwt.verify(token)
+    return Jwt.verify(token; token_type="access")
   catch e
     return false
   end
+end
+
+function get_bearer_token()::Union{String, Nothing}
+  authorization = HTTP.header(Genie.Requests.request(), "Authorization", "")
+  prefix = "Bearer "
+  if startswith(authorization, prefix)
+    return strip(authorization[length(prefix)+1:end])
+  end
+  return nothing
 end
 
 function get_cookie_value(cookies::Vector{HTTP.Cookies.Cookie}, name::String)::Union{String, Nothing}

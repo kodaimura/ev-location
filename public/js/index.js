@@ -588,6 +588,7 @@ const login = () => {
 
 const logout = async () => {
     await api.post(`logout`, {});
+    api.clearAccessToken();
     window.location.reload();
 }
 

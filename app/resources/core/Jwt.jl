@@ -5,7 +5,7 @@ import Base64: base64encode, base64decode
 import JSON
 import Dates
 
-export create, decode_payload, verify
+export create, decode_payload, verify, verified_payload
 
 function base64url_encode(data::Vector{UInt8})::AbstractString
     return replace(base64encode(String(data)), r"\+" => "-", "/" => "_", "=" => "")
@@ -39,10 +39,14 @@ function decode_payload(token::AbstractString)::Union{Dict{String, Any}, Nothing
     end
 end
 
-function verify(token::AbstractString)::Bool
+function verify(token::AbstractString; token_type::Union{String, Nothing}=nothing)::Bool
+    return !isnothing(verified_payload(token; token_type=token_type))
+end
+
+function verified_payload(token::AbstractString; token_type::Union{String, Nothing}=nothing)::Union{Dict{String, Any}, Nothing}
     parts = split(token, ".")
     if length(parts) != 3
-        return false
+        return nothing
     end
 
     header_encoded, payload_encoded, signature_encoded = parts
@@ -50,27 +54,31 @@ function verify(token::AbstractString)::Bool
     try
         header = JSON.parse(String(base64url_decode(header_encoded)))
         if get(header, "alg", "") != "HS256"
-            return false
+            return nothing
         end
 
         secret_key = Vector{UInt8}(codeunits(ENV["JWT_SECRET"]))
         expected_signature = hmac_sha256(secret_key, "$header_encoded.$payload_encoded")
         expected_signature_encoded = base64url_encode(expected_signature)
         if signature_encoded != expected_signature_encoded
-            return false
+            return nothing
         end
 
         payload = JSON.parse(String(base64url_decode(payload_encoded)))
         if haskey(payload, "exp")
             exp = payload["exp"]
             if Dates.now() > Dates.DateTime(exp)
-                return false
+                return nothing
             end
         end
 
-        return true
+        if !isnothing(token_type) && get(payload, "token_type", "") != token_type
+            return nothing
+        end
+
+        return payload
     catch e
-        return false
+        return nothing
     end
 end
 
