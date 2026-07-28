@@ -1,22 +1,36 @@
 h1 {
-    font-size: 1.5rem;
-    margin-top: 15px;
-    margin-bottom: 5px;
+    font-size: 1.75rem;
+    margin-top: 22px;
+    margin-bottom: 8px;
+    line-height: 1.35;
+    color: #1f2a37;
 }
 
 h2, h3 {
-    margin-top: 30px;
-    margin-bottom: 10px;
+    margin-top: 34px;
+    margin-bottom: 12px;
+    line-height: 1.45;
+    color: #263241;
 }
 
 main {
-    padding: 10px 30px;
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 24px 36px;
+    flex: 1;
+    overflow-x: hidden;
+}
+
+main p,
+main li {
+    color: #344256;
 }
 
 @media screen and (min-width: 768px) {
     main {
         font-size: 1.05rem;
-        padding: 10px 80px;
+        padding: 22px 64px 44px;
     }
     .formula {
         font-size: 1.05em !important;
@@ -26,7 +40,7 @@ main {
 @media screen and (min-width: 1200px) {
     main {
         font-size: 1.1rem;
-        padding: 10px 150px;
+        padding: 26px 80px 52px;
     }
     .formula {
         font-size: 1.1rem !important;
@@ -35,6 +49,8 @@ main {
 
 .formula {
     font-size: 0.7rem;
+    overflow-x: auto;
+    padding: 12px 0;
 }
 
 .header-account {
@@ -47,117 +63,158 @@ main {
 
 .input-group {
     display: flex;
+    gap: 8px;
+    align-items: stretch;
 }
 
 .input-group input {
-    width: 80%;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f9f9f9;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 10px;
+    border: 1px solid #c8d2df;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #263241;
+    font: inherit;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+    border-color: #2f7fc4;
+    box-shadow: 0 0 0 3px rgba(47, 127, 196, 0.14);
+    outline: none;
 }
 
 .input-group button {
-    width: 20%;
-    background-color: #4a90e2;
+    flex: 0 0 124px;
+    background-color: #2f7fc4;
     color: white;
-    padding: 12px 0;
+    padding: 8px 12px;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.45;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 .input-group button:hover {
-    background-color: #357ab7;
+    background-color: #24669e;
+    box-shadow: 0 3px 10px rgba(36, 102, 158, 0.18);
 }
 
 #facility-list {
     list-style-type: none;
     padding-left: 0;
-    margin-top: 10px;
+    margin-top: 12px;
+    margin-bottom: 8px;
 }
 
 #facility-list .facility-tag {
-    padding: 6px 12px;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    border-radius: 25px;
+    padding: 6px 10px 6px 12px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    border-radius: 999px;
     font-size: 0.9rem;
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    gap: 6px;
     color: #333;
     cursor: default;
+    border: 1px solid rgba(38, 50, 65, 0.08);
 }
 
 .frequency-1 {
-    background-color: #f0f0f0;
+    background-color: #eef2f6;
 }
 
 .frequency-2 {
-    background-color: #add8e6;
+    background-color: #c8e7f1;
 }
 
 .frequency-3 {
-    background-color: #FFDC64;
+    background-color: #f8d864;
 }
 
 #facility-list .delete-button {
     background: transparent;
     border: none;
-    color: #ff4d4d;
+    color: #bf3b3b;
     cursor: pointer;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 2px;
 }
 
 #facility-list .delete-button:hover {
-    color: #d72d2d;
+    color: #962828;
 }
 
 #map {
     height: 600px;
     width: 100%;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    border-radius: 10px;
+    margin-top: 22px;
+    margin-bottom: 18px;
+    border-radius: 8px;
+    border: 1px solid #d9e2ec;
+    background-color: #e8eef5;
 }
 
 #evaluate-button {
     width: 100%;
-    background-color: #4a90e2;
+    background-color: #2f7fc4;
     color: white;
-    padding: 10px 0;
-    font-size: 1.2rem;
+    padding: 9px 0;
+    font-size: 1rem;
+    font-weight: 700;
     border: none;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
+    transition: background-color 0.2s, box-shadow 0.2s;
 }
 
 #evaluate-button:hover {
-    background-color: #357ab7;
+    background-color: #24669e;
+    box-shadow: 0 3px 10px rgba(36, 102, 158, 0.18);
 }
 
 #score-table {
     border-collapse: collapse;
     width: 100%;
     text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #d9e2ec;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
 #score-table th {
-    border: 1px solid #ddd;
-    padding: 3px;
-    background-color: #f4f4f4;
-    color: #333;
+    border: 1px solid #d9e2ec;
+    padding: 8px;
+    background-color: #eef4fa;
+    color: #263241;
     font-weight: bold;
     text-align: center;
 }
 
+#score-table th:nth-child(2),
+#score-table td:nth-child(2) {
+    width: 88px;
+    min-width: 88px;
+    white-space: nowrap;
+    text-align: center;
+}
+
 #score-table td {
-    border: 1px solid #ddd;
-    padding: 3px 10px;
+    border: 1px solid #d9e2ec;
+    padding: 8px 10px;
     font-size: 0.9rem;
+    vertical-align: top;
 }
 
 .facilities-list {
@@ -175,4 +232,51 @@ main {
     border: none;
     padding: 8px;
     cursor: pointer;
+    color: #374151;
+    border-radius: 6px;
+}
+
+.delete-button:hover {
+    background-color: #f3f6fa;
+    color: #b42318;
+}
+
+@media screen and (max-width: 640px) {
+    h1 {
+        font-size: 1.45rem;
+    }
+
+    h2,
+    h3 {
+        margin-top: 28px;
+    }
+
+    main {
+        padding: 16px 16px 32px;
+    }
+
+    .header-account {
+        margin-right: 0;
+        font-size: 0.9rem;
+    }
+
+    .input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .input-group button {
+        flex-basis: auto;
+        width: 100%;
+    }
+
+    #map {
+        height: 420px;
+    }
+
+    #score-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
 }

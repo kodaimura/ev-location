@@ -2,65 +2,79 @@ main {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%;
+    flex: 1;
     width: 100%;
+    padding: 24px 20px;
 }
 
 .login-container {
     background-color: #ffffff;
-    padding: 20px 30px;
+    padding: 22px 24px;
     border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #d9e2ec;
+    box-shadow: 0 8px 24px rgba(20, 35, 55, 0.08);
     width: 100%;
-    max-width: 400px;
+    max-width: 360px;
     text-align: center;
 }
 
 .login-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333333;
+    font-size: 22px;
+    margin-bottom: 12px;
+    color: #25313f;
+    line-height: 1.4;
 }
 
 .error-message {
-    color: red;
+    color: #b42318;
     font-size: 14px;
+    margin-bottom: 0;
+    min-height: 0;
+}
+
+.error-message:not(:empty) {
     margin-bottom: 10px;
-    min-height: 20px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
     text-align: left;
 }
 
 .form-input {
     width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #cccccc;
-    border-radius: 4px;
+    padding: 8px 10px;
+    font-size: 15px;
+    line-height: 1.45;
+    border: 1px solid #c8d2df;
+    border-radius: 6px;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.3s ease;
+    background-color: #ffffff;
+    color: #25313f;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-input:focus {
-    border-color: #0077cc;
+    border-color: #1469aa;
+    box-shadow: 0 0 0 3px rgba(20, 105, 170, 0.14);
 }
 
 .login-button {
     width: 100%;
-    padding: 10px;
-    font-size: 16px;
+    padding: 9px;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 700;
     color: #ffffff;
-    background-color: #0077cc;
+    background-color: #1469aa;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .login-button:hover {
-    background-color: #0056b3;
+    background-color: #0f558c;
+    box-shadow: 0 3px 10px rgba(20, 105, 170, 0.18);
 }
