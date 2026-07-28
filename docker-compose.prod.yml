@@ -7,6 +7,8 @@ services:
       - "127.0.0.1:3800:3800"
     environment:
       - GENIE_ENV=prod
+      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY:-}
+      - GOOGLE_MAPS_MAP_ID=${GOOGLE_MAPS_MAP_ID:-}
     volumes:
       - .:/app
       - ./linux/logrotate.d/app:/etc/logrotate.d/app
