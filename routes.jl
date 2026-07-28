@@ -35,6 +35,10 @@ route("/api/handover", method="POST") do
   return CommonsController.handover(get_context())
 end
 
+route("/api/maps/config") do
+  return CommonsController.maps_config()
+end
+
 route("/api/accounts/me") do
   if is_authorized()
     payload = get_context()["payload"]

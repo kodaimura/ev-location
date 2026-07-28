@@ -1,7 +1,3 @@
-const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-const { PlacesService, PlacesServiceStatus } = await google.maps.importLibrary("places");
-const geometry = await google.maps.importLibrary("geometry");
-
 import { api } from '/js/api.js';
 
 let LOGIN = false;
@@ -9,11 +5,20 @@ let FACILITIES = [];
 let FACILITIES2 = [];
 let MAP;
 let GEOCODER;
+let ADVANCED_MARKER_ELEMENT;
+let PLACES_SERVICE;
+let PLACES_SERVICE_STATUS;
+let GEOMETRY;
+let GOOGLE_MAP_ID = '';
+let MAPS_READY = false;
+let MAPS_LOAD_PROMISE;
+const GEOCODE_CACHE = new Map();
+const PLACES_CACHE = new Map();
+const DIRECTIONS_CACHE = new Map();
 let ORIGIN = { lat: 35.68139565951991, lng: 139.76711235533344 };
 let ADDRESS = '';
 
 const init = async () => {
-    GEOCODER = new google.maps.Geocoder();
     await getAccount();
     if (!LOGIN && !localStorage.getItem("guest_code")) {
         localStorage.setItem("guest_code", generateGuestCode())
@@ -30,29 +35,142 @@ const init = async () => {
     getFacilities();
     getScores();
 
-    resetMap();
     document.getElementById("login-button").addEventListener("click", () => LOGIN ? logout() : login());
     document.getElementById("evaluate-button").addEventListener("click", evaluate);
     document.getElementById("add-facility-button").addEventListener("click", addFacility);
     document.getElementById("set-original-address-button").addEventListener("click", setOriginalAddress);
+    renderMapMessage("住所を設定すると地図を読み込みます。");
 };
 
-const setOriginalAddress = () => {
-    const address = document.getElementById("address-input").value;
+const loadGoogleMapsApi = async () => {
+    if (MAPS_READY) {
+        return;
+    }
+    if (MAPS_LOAD_PROMISE) {
+        return MAPS_LOAD_PROMISE;
+    }
+
+    MAPS_LOAD_PROMISE = initializeGoogleMapsApi();
+    return MAPS_LOAD_PROMISE;
+};
+
+const initializeGoogleMapsApi = async () => {
+    const config = await api.get('maps/config');
+    const apiKey = config?.api_key;
+    GOOGLE_MAP_ID = config?.map_id || '';
+
+    if (!apiKey) {
+        throw new Error("GOOGLE_MAPS_API_KEY is not configured.");
+    }
+
+    await loadGoogleMapsScript(apiKey);
+    if (GOOGLE_MAP_ID) {
+        ({ AdvancedMarkerElement: ADVANCED_MARKER_ELEMENT } = await google.maps.importLibrary("marker"));
+    }
+    ({ PlacesService: PLACES_SERVICE, PlacesServiceStatus: PLACES_SERVICE_STATUS } = await google.maps.importLibrary("places"));
+    GEOMETRY = await google.maps.importLibrary("geometry");
+    GEOCODER = new google.maps.Geocoder();
+    MAPS_READY = true;
+};
+
+const loadGoogleMapsScript = (apiKey) => {
+    if (window.google?.maps?.importLibrary) {
+        return Promise.resolve();
+    }
+
+    return new Promise((resolve, reject) => {
+        const callbackName = "__initGoogleMaps";
+        window[callbackName] = () => {
+            delete window[callbackName];
+            resolve();
+        };
+        window.gm_authFailure = () => {
+            reject(new Error("Google Maps authentication failed."));
+        };
+
+        const script = document.createElement("script");
+        const params = new URLSearchParams({
+            key: apiKey,
+            v: "weekly",
+            loading: "async",
+            callback: callbackName,
+        });
+        script.src = `https://maps.googleapis.com/maps/api/js?${params.toString()}`;
+        script.async = true;
+        script.onerror = () => reject(new Error("Google Maps JavaScript API could not load."));
+        document.head.appendChild(script);
+    });
+};
+
+const renderMapMessage = (message, isError = false) => {
+    const mapElement = document.getElementById('map');
+    mapElement.classList.toggle('map-error', isError);
+    mapElement.classList.add('map-message');
+    mapElement.textContent = message;
+};
+
+const ensureMapsReady = async () => {
+    if (MAPS_READY) {
+        return true;
+    }
+
+    try {
+        renderMapMessage("地図を読み込んでいます。");
+        await loadGoogleMapsApi();
+        return true;
+    } catch (e) {
+        console.error(e);
+        renderMapMessage("Google Maps API キーが設定されていないか、Google Cloud 側の認証設定に問題があります。", true);
+        alert("Google Maps API の設定を確認してください。");
+        return false;
+    }
+};
+
+const originCacheKey = () => {
+    return `${Number(ORIGIN.lat).toFixed(6)},${Number(ORIGIN.lng).toFixed(6)}`;
+};
+
+const placesCacheKey = (facility) => {
+    return `${originCacheKey()}:${facility.name.trim().toLowerCase()}`;
+};
+
+const directionsCacheKey = (place) => {
+    return `${originCacheKey()}:${place.place_id || place.name}`;
+};
+
+const setOriginalAddress = async () => {
+    const address = document.getElementById("address-input").value.trim();
     if (address === "") {
         alert("住所を入力してください。");
         return;
     }
+
+    if (!await ensureMapsReady()) {
+        return;
+    }
+
+    if (ADDRESS === address) {
+        return;
+    }
+
+    if (GEOCODE_CACHE.has(address)) {
+        ORIGIN = GEOCODE_CACHE.get(address);
+        ADDRESS = address;
+        resetMap();
+        return;
+    }
+
     GEOCODER.geocode({ address: address }, (results, status) => {
         if (status === "OK") {
-            const newOrigin = results[0].geometry.location;
+            const location = results[0].geometry.location;
+            const newOrigin = {
+                lat: location.lat(),
+                lng: location.lng(),
+            };
+            GEOCODE_CACHE.set(address, newOrigin);
             ORIGIN = newOrigin;
-            MAP.setCenter(newOrigin);
-            const originMarker = new AdvancedMarkerElement({
-                position: newOrigin,
-                map: MAP,
-            });
             ADDRESS = address;
+            resetMap();
         } else {
             alert("Google Map API の無料枠の日時上限に達してしまいました。");
         }
@@ -129,6 +247,9 @@ const evaluate = async () => {
         alert("物件を設定してください。");
         return;
     };
+    if (!await ensureMapsReady()) {
+        return;
+    }
     await displayClosestRoutesForFacilities();
     postScore();
 }
@@ -137,7 +258,7 @@ const displayClosestRoutesForFacilities = async () => {
     resetMap();
     FACILITIES2 = [];
     const displayedPlaces = new Set();
-    const service = new PlacesService(MAP);
+    const service = new PLACES_SERVICE(MAP);
     for (const facility of FACILITIES) {
         const results = await evaluateLocation(service, facility)
         if (results) {
@@ -155,6 +276,11 @@ const displayClosestRoutesForFacilities = async () => {
 }
 
 const evaluateLocation = async (service, facility) => {
+    const cacheKey = placesCacheKey(facility);
+    if (PLACES_CACHE.has(cacheKey)) {
+        return PLACES_CACHE.get(cacheKey);
+    }
+
     return new Promise((resolve, reject) => {
         const request = {
             location: ORIGIN,
@@ -163,7 +289,8 @@ const evaluateLocation = async (service, facility) => {
         };
 
         service.textSearch(request, (results, status) => {
-            if (status === PlacesServiceStatus.OK && results.length > 0) {
+            if (status === PLACES_SERVICE_STATUS.OK && results.length > 0) {
+                PLACES_CACHE.set(cacheKey, results);
                 resolve(results);
             } else {
                 alert("Google Map API の無料枠の日時上限に達してしまいました。");
@@ -186,23 +313,28 @@ const getClosestPlaceAndRoute = async (places) => {
     let nearestPlace;
     let nearestPlaceDirection;
     for (const place of places) {
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRequest = {
-            origin: ORIGIN,
-            destination: place.geometry.location,
-            travelMode: google.maps.TravelMode.WALKING,
-        };
+        const cacheKey = directionsCacheKey(place);
+        let response = DIRECTIONS_CACHE.get(cacheKey);
+        if (!response) {
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRequest = {
+                origin: ORIGIN,
+                destination: place.geometry.location,
+                travelMode: google.maps.TravelMode.WALKING,
+            };
 
-        const response = await new Promise((resolve, reject) => {
-            directionsService.route(directionsRequest, (response, status) => {
-                if (status === google.maps.DirectionsStatus.OK) {
-                    resolve(response);
-                } else {
-                    alert("Google Map API の無料枠の日時上限に達してしまいました。");
-                    reject(`ルートの取得に失敗しました: ${status}`);
-                }
+            response = await new Promise((resolve, reject) => {
+                directionsService.route(directionsRequest, (response, status) => {
+                    if (status === google.maps.DirectionsStatus.OK) {
+                        resolve(response);
+                    } else {
+                        alert("Google Map API の無料枠の日時上限に達してしまいました。");
+                        reject(`ルートの取得に失敗しました: ${status}`);
+                    }
+                });
             });
-        });
+            DIRECTIONS_CACHE.set(cacheKey, response);
+        }
 
         const duration = response.routes[0].legs[0].duration.value;
         if (min > duration) {
@@ -220,24 +352,54 @@ const displayPlaceDirection = async (place, placeDirection) => {
         suppressMarkers: true,  // マーカーの重複を防ぐ
     });
     directionsRenderer.setDirections(placeDirection);
-    const marker = new AdvancedMarkerElement({
+    createMarker({
         position: place.geometry.location,
         map: MAP,
         content: createTimeIcon(placeDirection.routes[0].legs[0].duration.text),
+        label: placeDirection.routes[0].legs[0].duration.text,
     });
 }
 
 // 地図をリセットする処理
 const resetMap = () => {
-    MAP = new google.maps.Map(document.getElementById('map'), {
+    const mapElement = document.getElementById('map');
+    mapElement.classList.remove('map-error');
+    mapElement.classList.remove('map-message');
+    mapElement.textContent = '';
+
+    const mapOptions = {
         center: ORIGIN,
         zoom: 14,
-        mapId: "MAP_ID"
-    });
+    };
+    if (GOOGLE_MAP_ID) {
+        mapOptions.mapId = GOOGLE_MAP_ID;
+    }
 
-    const originMarker = new AdvancedMarkerElement({
+    MAP = new google.maps.Map(mapElement, mapOptions);
+
+    createMarker({
         position: ORIGIN,
         map: MAP,
+    });
+};
+
+const createMarker = ({ position, map, content, label }) => {
+    if (GOOGLE_MAP_ID && ADVANCED_MARKER_ELEMENT) {
+        return new ADVANCED_MARKER_ELEMENT({
+            position,
+            map,
+            content,
+        });
+    }
+
+    return new google.maps.Marker({
+        position,
+        map,
+        label: label ? {
+            text: label,
+            color: "#111827",
+            fontWeight: "700",
+        } : undefined,
     });
 };
 
@@ -246,7 +408,7 @@ const getNearestPlaces = (origin, results, count) => {
     return results
         .map(place => ({
             place,
-            distance: geometry.spherical.computeDistanceBetween(origin, place.geometry.location)
+            distance: GEOMETRY.spherical.computeDistanceBetween(origin, place.geometry.location)
         }))
         .sort((a, b) => a.distance - b.distance)
         .filter((item, index, self) =>

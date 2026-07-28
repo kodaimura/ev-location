@@ -7,7 +7,7 @@ import Genie.Requests as Requests
 
 using .CommonsService
 
-export handover
+export handover, maps_config
 
 function validate_request_keys(request::Dict{String, Any}, keys::Vector{String})
     missing_keys = [key for key in keys if !haskey(request, key)]
@@ -28,6 +28,13 @@ function handover(ctx::Dict{String, Any})
     catch e
         return json_error_response(e, Requests.request())
     end
+end
+
+function maps_config()
+    return RendererJson.json(Dict(
+        "api_key" => get(ENV, "GOOGLE_MAPS_API_KEY", ""),
+        "map_id" => get(ENV, "GOOGLE_MAPS_MAP_ID", "")
+    ); status=200)
 end
 
 end

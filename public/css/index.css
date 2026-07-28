@@ -27,6 +27,12 @@ main li {
     color: #344256;
 }
 
+.usage-note {
+    color: #5d6b7a;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
 @media screen and (min-width: 768px) {
     main {
         font-size: 1.05rem;
@@ -163,6 +169,21 @@ main li {
     border-radius: 8px;
     border: 1px solid #d9e2ec;
     background-color: #e8eef5;
+}
+
+#map.map-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    color: #5d6b7a;
+    text-align: center;
+}
+
+#map.map-error {
+    color: #6b2d2d;
+    background-color: #fff4f2;
+    border-color: #efb4aa;
 }
 
 #evaluate-button {
