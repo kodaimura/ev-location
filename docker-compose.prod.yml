@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3800:3800"
+      - "127.0.0.1:3800:3800"
     environment:
       - GENIE_ENV=prod
     volumes:
